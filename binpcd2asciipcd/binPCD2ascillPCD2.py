@@ -20,7 +20,10 @@ def parsing_header_data(header):
     Line_num = 0
     print(header)
     txt_decode = header.decode().split("\n")
+    print(txt_decode[Line_num])
     while (txt_decode[Line_num].split(" ")[0] != "DATA"):
+        print(txt_decode[Line_num])
+        print(Line_num)
         if txt_decode[Line_num].split(" ")[0] == "SIZE":
             SIZE_list = txt_decode[Line_num].split(" ")[1:]
         elif txt_decode[Line_num].split(" ")[0] == "TYPE":
@@ -52,14 +55,42 @@ def parsing_bin_PCD(directory_path = os.getcwd()): # args가 없으면 코드가
         print("now converting file name :" , i)
         file_name = i.split(".pcd")
         Origin_pcd_f = open(directory_path + "/" + i, 'rb')
-        txt = Origin_pcd_f.read(0xc1) # 헤더까지 하드코딩으로 짜르기. 샘플로 제공된 pcd 파일은 전부 0x135위치까지 header가 차지하고 있기 때문에.
-        SIZE_list, TYPE_list, POINTS = parsing_header_data(txt)
+
+        line = Origin_pcd_f.readline().decode()
+        header = []
+        header.append(line)
+        list_pcd = []
+        field_list = []
+        size_list = []
+        type_list = []
+        count_list = []
+        while line:
+            line = Origin_pcd_f.readline().decode()
+            words = line.split(' ')
+            if words[0] == "DATA":
+                header.append("DATA ascii\n")
+                break
+            elif words[0] == "FIELDS":
+                for j in range(len(words)-1):
+                    field_list.append(words[j+1])
+            elif words[0] == "SIZE":
+                for j in range(len(words)-1):
+                    size_list.append(words[j+1])
+            elif words[0] == "TYPE":
+                for j in range(len(words)-1):
+                    type_list.append(words[j+1])
+            elif words[0] == "COUNT":
+                for j in range(len(words)-1):
+                    count_list.append(words[j+1])
+            header.append(line)
         PCD_data_part = Origin_pcd_f.read() # 헤더까지 다 읽은 기록이 있기 때문에, 나머지를 다 읽으면 PCD 데이터 부분이다.
         lines = parsing_PCD_data(PCD_data_part)
-        POINTS = POINTS.replace("\n", "")
         with open (file_name[0] + "_ascii.pcd", 'w+') as f:
-            f.write(HEADER.format(int(POINTS), int(POINTS))+'\n'.join(lines))
-    # exit(1)
+            f.write(''.join(header))
+            f.write('\n'.join(lines))
+            # f.write('\n'.join(lines))
+        Origin_pcd_f.close()
+        exit(1)
 
 if __name__ == "__main__":
     try:
