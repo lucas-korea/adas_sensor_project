@@ -16,35 +16,65 @@ POINTS {}
 DATA ascii
 '''
 
-def parsing_header_data(header):
-    Line_num = 0
-    print(header)
-    txt_decode = header.decode().split("\n")
-    print(txt_decode[Line_num])
-    while (txt_decode[Line_num].split(" ")[0] != "DATA"):
-        print(txt_decode[Line_num])
-        print(Line_num)
-        if txt_decode[Line_num].split(" ")[0] == "SIZE":
-            SIZE_list = txt_decode[Line_num].split(" ")[1:]
-        elif txt_decode[Line_num].split(" ")[0] == "TYPE":
-            TYPE_list = txt_decode[Line_num].split(" ")[1:]
-        elif txt_decode[Line_num].split(" ")[0] == "POINTS":
-            POINTS = txt_decode[Line_num].split(" ")[1]
-        Line_num = Line_num + 1
-    return SIZE_list, TYPE_list, POINTS
+# def parsing_header_data(header):
+#     Line_num = 0
+#     print(header)
+#     txt_decode = header.decode().split("\n")
+#     print(txt_decode[Line_num])
+#     while (txt_decode[Line_num].split(" ")[0] != "DATA"):
+#         print(txt_decode[Line_num])
+#         print(Line_num)
+#         if txt_decode[Line_num].split(" ")[0] == "SIZE":
+#             SIZE_list = txt_decode[Line_num].split(" ")[1:]
+#         elif txt_decode[Line_num].split(" ")[0] == "TYPE":
+#             TYPE_list = txt_decode[Line_num].split(" ")[1:]
+#         elif txt_decode[Line_num].split(" ")[0] == "POINTS":
+#             POINTS = txt_decode[Line_num].split(" ")[1]
+#         Line_num = Line_num + 1
+#     return SIZE_list, TYPE_list, POINTS
 
-def parsing_PCD_data(PCD):
+def parsing_PCD_data(PCD, type_list, count_list):
     start = 0
-    lines = []
+    lines = [[]]
+
+    pack_str = ""
+    format_str = ""
+    byte_len = 0
+    for i in range(len(type_list)):
+        if (type_list[i] == "F"):
+            for j in range(int(count_list[i])):
+                pack_str = pack_str + "f"
+                format_str = format_str + "{:.6f} "
+                byte_len = byte_len + 4
+        elif (type_list[i] == "U"):
+            for j in range(int(count_list[i])):
+                pack_str = pack_str + "B"
+                format_str = format_str + "{} "
+                byte_len = byte_len + 1
+    line_i = 0
+    format_str = format_str.split(" ")
     while (1):
-        try:
-            byte_len = 4 * 4
-            x, y, z, intensity = struct.unpack("ffff", PCD[start: start + byte_len])  # B:부호없는 정수, c:문자
-            lines.append('{:.6f} {:.6f} {:.6f} {:.6f}'.format(x, y, z, intensity))
-            start = start + byte_len
-        except:
-            print("end of pcd file")
-            break
+        # try:
+        scalar_fileds = struct.unpack(pack_str, PCD[start: start + byte_len])  # B:부호없는 정수, c:문자
+        # print(type(scalar_fileds))
+        # scalar_fileds= ' '.join(list(str(scalar_fileds)))
+        # print(type(scalar_fileds))
+        # print(scalar_fileds)
+        print(lines[0])
+        print(format_str[0])
+        print(scalar_fileds[0])
+        for i in range(len(type_list)-1):
+            print("i: ", i )
+            lines[line_i] = str(lines[line_i]) + " " + format_str[i].format(scalar_fileds[i])
+        print("lines:", lines)
+        lines.append("")
+        start = start + byte_len
+        line_i = line_i + 1
+        # print(start)
+        # except:
+        #     print("end of pcd file")
+        #     break
+    # print(lines)
     return lines
 
 def parsing_bin_PCD(directory_path = os.getcwd()): # args가 없으면 코드가 위치한 디렉토리에서 검색,변환
@@ -59,7 +89,6 @@ def parsing_bin_PCD(directory_path = os.getcwd()): # args가 없으면 코드가
         line = Origin_pcd_f.readline().decode()
         header = []
         header.append(line)
-        list_pcd = []
         field_list = []
         size_list = []
         type_list = []
@@ -84,16 +113,15 @@ def parsing_bin_PCD(directory_path = os.getcwd()): # args가 없으면 코드가
                     count_list.append(words[j+1])
             header.append(line)
         PCD_data_part = Origin_pcd_f.read() # 헤더까지 다 읽은 기록이 있기 때문에, 나머지를 다 읽으면 PCD 데이터 부분이다.
-        lines = parsing_PCD_data(PCD_data_part)
-        with open (file_name[0] + "_ascii.pcd", 'w+') as f:
+        lines = parsing_PCD_data(PCD_data_part, type_list, count_list)
+        with open (file_name[0] + "_ascii.pcd", 'w') as f:
             f.write(''.join(header))
             f.write('\n'.join(lines))
-            # f.write('\n'.join(lines))
         Origin_pcd_f.close()
         exit(1)
 
 if __name__ == "__main__":
-    try:
-        parsing_bin_PCD(sys.argv[1])
-    except:
-        parsing_bin_PCD()
+    # try:
+    #     parsing_bin_PCD(sys.argv[1])
+    # except:
+    parsing_bin_PCD()
