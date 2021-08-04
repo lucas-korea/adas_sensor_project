@@ -12,15 +12,12 @@ def main():
     serverSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     serverSocket.bind((IP_ADDRESS, PORT_NO))
     ## python TCP send data setting
-    s = serverSocket.recv(34896)
-    print(s)
-    # print(len(serverSocket.recv(34896)))
-    with open("ouster_packet_1", "wb") as f:
-        f.write(s)
-    # while True: ## 실시간 관찰
-    serverSocket.recv(34896)
 
+    for i in range(250):
+        with open("ouster_packet_" + str(i), "wb") as f:
+            s = serverSocket.recv(24896)
+            f.write(s)
     print("finish")
-        # print(len(serverSocket.recv(24896)))
+
 if __name__ == "__main__":
     main()
