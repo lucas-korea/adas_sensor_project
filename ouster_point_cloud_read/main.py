@@ -15,6 +15,19 @@ POINTS {}
 DATA ascii
 '''
 
+HEADER_ref = '''# .PCD v0.7 - Point Cloud Data file format
+VERSION 0.7
+FIELDS x y z intensity ref
+SIZE 4 4 4 4 4
+TYPE F F F F F 
+COUNT 1 1 1 1 1
+WIDTH {}
+HEIGHT 1
+VIEWPOINT 0 0 0 1 0 0 0
+POINTS {}
+DATA ascii
+'''
+
 angle = np.zeros(128)
 Azimuth_intrinsic = np.zeros(128)
 beam_len = ouster_header.list["lidar_origin_to_beam_origin_mm"] * 0.001
@@ -24,8 +37,10 @@ for i in range(128):
     Azimuth_intrinsic[i] = ouster_header.list["beam_azimuth_angles"][i] * np.pi / 180
 
 Range_bytes = []
+ref_bytes = []
 intensity_bytes = []
 Range_list = []
+ref_list = []
 intensity_list = []
 
 PACKETS_COUNT = 64
@@ -38,6 +53,7 @@ START_PACKET = 700
 Azimuth = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
 Azimuth_sum = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
 distance = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))  # 128 = channel, 16 * 128 = block * packets
+reflectivity = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
 intensity = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
 
 x = np.zeros(BLOCKS * PACKETS_COUNT * CHANNEL)
@@ -57,7 +73,7 @@ def read_packets():
 def read_packets2():
     print("read packets...")
     packets = []
-    with open("Lidar_20210810_165111.txt", 'rb') as f:
+    with open("Lidar_20210809_155001.txt", 'rb') as f:
         for i in range(128):
             f.read(2)  # 처음에 붙은 0x00 0x00은 없애는 작업
             f.read(48) # katech header
@@ -75,7 +91,7 @@ def cal_lidar_pos():
     # x_ = (distance) * np.cos(angle) * np.cos(Azimuth_sum)
     # y_ = (distance) * np.cos(angle) * np.sin(Azimuth_sum) * -1
     # z_ = (distance) * np.sin(angle)
-    return (np.stack([x_, y_, z_, intensity], axis=-1).reshape(-1, 4))
+    return (np.stack([x_, y_, z_, intensity, reflectivity], axis=-1).reshape(-1, 5))
 
 
 def rm_zero_point(point_cloud):  ## xyz가 전부 0이거나 Intensity = 0인 경우를 삭제
@@ -103,8 +119,10 @@ def main():
         index = index + 8
         for j in range(CHANNEL):
             Range_bytes = data[index: index + 4]
+            ref_bytes = data[index + 4 : index + 6]
             intensity_bytes = data[index + 6: index + 8]
             distance[i][j] = (Range_bytes[2] * 256 ** 2 + Range_bytes[1] * 256 + Range_bytes[0]) / 1000
+            reflectivity[i][j] = ref_bytes[1] * 256 + ref_bytes[0]
             intensity[i][j] = (intensity_bytes[1] * 256 + intensity_bytes[0]) / 65535
             index = index + 12
         block_stat = data[index: index + 4]
@@ -129,13 +147,13 @@ def figure_PCD(point_cloud):
 
 
 def make_PCDfile(point_cloud):
-    with open("test_re.pcd", 'w') as f:
-        f.write(HEADER.format(len(point_cloud), len(point_cloud)))
+    with open("test_ref.pcd", 'w') as f:
+        f.write(HEADER_ref.format(len(point_cloud), len(point_cloud)))
         for i in range(len(point_cloud)):
             for j in range(3):
                 point_cloud[i][j] = round(point_cloud[i][j], 4)
             f.write(str(point_cloud[i][0]) + ' ' + str(point_cloud[i][1]) + ' ' + str(point_cloud[i][2]) + ' ' + str(
-                point_cloud[i][3]) + '\n')
+                point_cloud[i][3]) + ' ' + str(point_cloud[i][4])+ '\n')
     print("makeing PCD file done!!!")
 
 
