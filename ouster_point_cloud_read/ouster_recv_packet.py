@@ -13,8 +13,9 @@ def main():
     serverSocket.bind((IP_ADDRESS, PORT_NO))
     ## python TCP send data setting
 
-    for i in range(300, 500):
-        with open("ouster_packet_" + str(i), "wb") as f:
+    start = 700
+    for i in range(start, start + 64):
+        with open("data\\ouster_packet_" + str(i), "wb") as f:
             s = serverSocket.recv(24896)
             f.write(s)
     print("finish")
