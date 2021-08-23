@@ -1,7 +1,19 @@
-import sys
-import numpy as np
 import os
 import struct
+from tkinter import filedialog
+from tkinter import messagebox
+
+
+def select_file():
+    files = filedialog.askopenfilenames(initialdir=os.getcwd(),
+                                        title="파일을 선택 해 주세요",
+                                        filetypes=(("*.pcd", "*pcd"), ("*.txt", "*txt"), ("*.xls", "*xls"), ("*.csv", "*csv")))
+    if files == '':
+        messagebox.showwarning("경고", "파일을 추가 하세요")  # 파일 선택 안했을 때 메세지 출력
+        exit(1)
+    path = ("\\".join(list(files)[0].split("/")[0: -1]))  # lidar 데이터 목록 위치 추출
+    return files, path
+
 
 def asciiPCD2binPCD(file_list):
     for file_name in file_list:
@@ -9,23 +21,26 @@ def asciiPCD2binPCD(file_list):
         f = open(file_name, 'r')
         header = []
         list_pcd = []
-        field_list = []
-        size_list = []
         type_list = []
         count_list = []
-        for i in range(15):
-            line = f.readline()
+        read_suc = []
+        breaker = False
+        while(1):
+            try:
+                line = f.readline()
+            except Exception as e:
+                print(e)
+                breaker = True
+                break
             words = line.split(" ")
             if words[0] == "DATA":
+                if words[1][:5] != "ascii":
+                    breaker = True
+                    print("skip {} cause it is not ascii type".format(file_name))
+                    break
                 header.append("DATA binary\n")
                 read_suc = f.readline()
                 break
-            elif words[0] == "FIELDS":
-                for j in range(len(words)-1):
-                    field_list.append(words[j+1])
-            elif words[0] == "SIZE":
-                for j in range(len(words)-1):
-                    size_list.append(words[j+1])
             elif words[0] == "TYPE":
                 for j in range(len(words)-1):
                     type_list.append(words[j+1])
@@ -33,6 +48,10 @@ def asciiPCD2binPCD(file_list):
                 for j in range(len(words)-1):
                     count_list.append(words[j+1])
             header.append(line)
+        if breaker:
+            continue
+        type_list[-1] = type_list[-1].replace('\n', '')
+        type_list[-1] = type_list[-1].replace('\r', '')
         while read_suc:
             splited_line = read_suc.split(' ')
             for j in range(len(splited_line)):
@@ -47,10 +66,10 @@ def asciiPCD2binPCD(file_list):
         f.close()
         pack_str = ""
         for i in range(len(type_list)):
-            if (type_list[i] == "F"):
+            if type_list[i] == "F":
                 for j in range(int(count_list[i])):
                     pack_str = pack_str + "f"
-            elif (type_list[i] == "U"):
+            elif type_list[i] == "U":
                 for j in range(int(count_list[i])):
                     pack_str = pack_str + "B"
         with open(file_name[:-4] + "_bin.pcd", 'w') as f:
@@ -59,10 +78,8 @@ def asciiPCD2binPCD(file_list):
             for j in range(len(list_pcd)):
                 for k in range(len(pack_str)):
                     f.write(struct.pack(pack_str[k], list_pcd[j][k]))
-        exit(1)
+
 
 if __name__ == "__main__":
-    file_list = os.listdir(os.getcwd())
-    file_list = [file for file in file_list if file.startswith("2_")]  ## 지정된 디렉토리 내 pcd 파일만 검색
-    file_list = [file for file in file_list if not file.endswith("bin.pcd")]
+    file_list, path = select_file()
     asciiPCD2binPCD(file_list)
