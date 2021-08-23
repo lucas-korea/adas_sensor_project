@@ -1,2 +1,10 @@
 *.txt
-
+*.pcd
+dist/
+dist\
+dist*\
+dist*/
+*.zip
+*.png
+build\
+build/

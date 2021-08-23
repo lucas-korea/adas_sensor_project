@@ -38,10 +38,10 @@ for i in range(128):
 
 Range_bytes = []
 ref_bytes = []
-intensity_bytes = []
+signal_photon_bytes = []
 Range_list = []
 ref_list = []
-intensity_list = []
+signal_photon_list = []
 
 PACKETS_COUNT = 64
 BLOCKS = 16
@@ -54,14 +54,14 @@ Azimuth = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
 Azimuth_sum = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
 distance = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))  # 128 = channel, 16 * 128 = block * packets
 reflectivity = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
-intensity = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
+signal_photon = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
 
 x = np.zeros(BLOCKS * PACKETS_COUNT * CHANNEL)
 y = np.zeros(BLOCKS * PACKETS_COUNT * CHANNEL)
 z = np.zeros(BLOCKS * PACKETS_COUNT * CHANNEL)
 
 
-def read_packets():
+def read_packets(): # 1 패킷 1 파일 형태의 데이터들을 모아서 읽기j
     print("read packets...")
     packets = []
     for i in range(START_PACKET, START_PACKET + PACKETS_COUNT):
@@ -70,11 +70,11 @@ def read_packets():
     return packets
 
 
-def read_packets2():
+def read_packets2(): # labview에서 읽어오듯 1 파일에 다수의 패킷이 들어있는 데이터를 읽기
     print("read packets...")
     packets = []
-    with open("Lidar_20210809_155001.txt", 'rb') as f:
-        for i in range(128):
+    with open("Lidar_20210809_155001.txt", 'rb') as f: # 취득데이터 이름
+        for i in range(64):
             f.read(2)  # 처음에 붙은 0x00 0x00은 없애는 작업
             f.read(48) # katech header
             packets = packets + list(f.read(24896))
@@ -91,7 +91,7 @@ def cal_lidar_pos():
     # x_ = (distance) * np.cos(angle) * np.cos(Azimuth_sum)
     # y_ = (distance) * np.cos(angle) * np.sin(Azimuth_sum) * -1
     # z_ = (distance) * np.sin(angle)
-    return (np.stack([x_, y_, z_, intensity, reflectivity], axis=-1).reshape(-1, 5))
+    return (np.stack([x_, y_, z_, signal_photon, reflectivity], axis=-1).reshape(-1, 5))
 
 
 def rm_zero_point(point_cloud):  ## xyz가 전부 0이거나 Intensity = 0인 경우를 삭제
@@ -120,18 +120,18 @@ def main():
         for j in range(CHANNEL):
             Range_bytes = data[index: index + 4]
             ref_bytes = data[index + 4 : index + 6]
-            intensity_bytes = data[index + 6: index + 8]
+            signal_photon_bytes = data[index + 6: index + 8]
             distance[i][j] = (Range_bytes[2] * 256 ** 2 + Range_bytes[1] * 256 + Range_bytes[0]) / 1000
             reflectivity[i][j] = ref_bytes[1] * 256 + ref_bytes[0]
-            intensity[i][j] = (intensity_bytes[1] * 256 + intensity_bytes[0]) / 65535
+            signal_photon[i][j] = (signal_photon_bytes[1] * 256 + signal_photon_bytes[0]) / 65535
             index = index + 12
         block_stat = data[index: index + 4]
         index = index + 4
         if (block_stat != [0xff, 0xff, 0xff, 0xff]):
             print("block status error!!")
             exit(1)
-    point_cloud = cal_lidar_pos()
-    make_PCDfile(point_cloud)
+    point_cloud = cal_lidar_pos() # global로 선언된 distance, reflectivity, signal_photon, Azimuth를 조합하여 point cloud data 생성
+    make_PCDfile(point_cloud) # point cloud data를 pcd file로 변환
 
 def figure_PCD(point_cloud):
     fig = plt.figure()
@@ -147,8 +147,8 @@ def figure_PCD(point_cloud):
 
 
 def make_PCDfile(point_cloud):
-    with open("test_ref.pcd", 'w') as f:
-        f.write(HEADER_ref.format(len(point_cloud), len(point_cloud)))
+    with open("test.pcd", 'w') as f: # 생성될 pcd file 이름
+        f.write(HEADER_ref.format(len(point_cloud), len(point_cloud))) # 미리 지정한 header를 pcd file 위에 write
         for i in range(len(point_cloud)):
             for j in range(3):
                 point_cloud[i][j] = round(point_cloud[i][j], 4)
@@ -159,4 +159,3 @@ def make_PCDfile(point_cloud):
 
 if __name__ == '__main__':
     main()
-    # print(read_packets2())
