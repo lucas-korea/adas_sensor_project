@@ -239,15 +239,7 @@ def main():
 # ouster lidar packet을 manual에 맞게 parsing
 def parsing_packet(data):
     index = 0
-    global timestamp
     for i in range(PACKETS_COUNT * BLOCKS):
-        # t_bytes = data[index: index + 8]
-        # timestamp[i][0] = t_bytes[7] * 256 ** 7 + t_bytes[6] * 256 ** 6 + t_bytes[5] * 256 ** 5 + t_bytes[
-        #     4] * 256 ** 4 + \
-        #                   t_bytes[3] * 256 ** 3 + t_bytes[2] * 256 ** 2 + t_bytes[1] * 256 + t_bytes[0]
-        # if i == 0:
-        #     with open("timestamp.txt", 'a') as f:
-        #         f.write(str(timestamp[i][0]) + '\n')
         index = index + 8  # timestamp
         Encoder = data[index + 4: index + 8]
         Encoder = (Encoder[3] * 256 ** 3 + Encoder[2] * 256 ** 2 + Encoder[1] * 256 + Encoder[0])

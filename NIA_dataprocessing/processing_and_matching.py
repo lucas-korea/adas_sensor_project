@@ -178,7 +178,7 @@ def extract_PCDPNGpair_by_matchlist(match_list_path_list, camera_ts_path, camera
 
 
 def main():
-    if 0:
+    if 1:
         lidar_ts_filelist, lidar_ts_path = select_lidar_data_list_txtfile_and_make_lidarTimeStamp_txtfile()
         camera_ts_filelist, camera_ts_path = search_all_Frame_TimeStamp_and_move2folder()
         with open('test2.pickle', 'wb') as f:
