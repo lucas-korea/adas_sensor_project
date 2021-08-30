@@ -1,0 +1,15 @@
+build전 체크사항
+1. 헤더 정확히 들어가는지 (binary or asii, filds, etc)
+2. 프레임 보정하는 수식 정확한지
+3. 추출 파일명 형식에 맞는지
+4. timestamp.txt 파일 추출되는지 or 안되는지
+
+ver1 : 0819, 이메일로 전달완료
+binary와 ascii header가 뒤바뀐 문제가 있음
+
+
+ver3: 0827, 전달 예정 -> 전달완료
+ouster 각도 지정에 있어서 문제 있었던 부분이 있었음 -> 해결
+round 함수를 np.round로 대체하여 속도를 1/4로 줄임
+
+ver4: 0830 수정중

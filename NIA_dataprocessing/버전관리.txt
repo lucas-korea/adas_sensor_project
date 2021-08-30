@@ -1,0 +1,14 @@
+ver0
+
+Frame_TimeStamp를 서로 다른 폴더에 있는걸 가정하고 코딩
+진행상황 표시 x
+pickle 코드 남아있는 등 여러 legacy 코드정리 미흡
+
+ver1 없음
+
+ver2
+Frame_TimeStamp를 서로 한 폴더에 있는걸 가정하고 코딩
+진행상황 표시 o
+legacy 코드정리 1차 완료
+matcing된 데이터 정리한 폴더 선택 시점을 빨리 하여, 보다 효율적인 실행프로세스 가능.
+
