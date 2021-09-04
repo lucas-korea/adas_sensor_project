@@ -15,7 +15,7 @@ def select_file():
     return files, path
 
 
-def parsing_PCD_data(PCD, type_list, count_list):
+def parsing_binPCD2asciiPCD(PCD, type_list, count_list):
     start = 0
     lines = [[]]
 
@@ -56,7 +56,7 @@ def parsing_PCD_data(PCD, type_list, count_list):
     return lines
 
 
-def parsing_bin_PCD(file_list): # args가 없으면 코드가 위치한 디렉토리에서 검색,변환
+def binPCD2asciiPCD(file_list): # args가 없으면 코드가 위치한 디렉토리에서 검색,변환
     for file_name in file_list: #디렉토리 내 pcd 확장자 파일 대상으로 변환 시작 (ascii binary 구분없이 다 처리함)(근데 ascii 타입 pcd는 에러가 난다)
         print("now converting file name :" , file_name)
         Origin_pcd_f = open(file_name, 'rb')
@@ -92,7 +92,7 @@ def parsing_bin_PCD(file_list): # args가 없으면 코드가 위치한 디렉�
                     count_list.append(words[j+1])
             header.append(line+'\n')
         PCD_data_part = Origin_pcd_f.read() # 헤더까지 다 읽은 기록이 있기 때문에, 나머지를 다 읽으면 PCD 데이터 부분이다.
-        lines = parsing_PCD_data(PCD_data_part, type_list, count_list)
+        lines = parsing_binPCD2asciiPCD(PCD_data_part, type_list, count_list)
         with open (file_name[:-4] + "_ascii.pcd", 'w') as f:
             f.write(''.join(header))
             f.write('\n'.join(lines))
@@ -101,4 +101,4 @@ def parsing_bin_PCD(file_list): # args가 없으면 코드가 위치한 디렉�
 
 if __name__ == "__main__":
     file_list, path = select_file()
-    parsing_bin_PCD(file_list)
+    binPCD2asciiPCD(file_list)

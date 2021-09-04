@@ -23,7 +23,7 @@ def make_pcd_ts_listtxt(pcd_file_list):
     return pcd_ts_list
 
 
-def select_file(str_):
+def select_onefile(str_):
     files = filedialog.askopenfilenames(initialdir=os.getcwd(),
                                         title=str_,
                                         filetypes=(("*.txt", "*txt"), ("*.xls", "*xls"), ("*.csv", "*csv")))
@@ -46,7 +46,7 @@ def select_folder(str_):
 
 
 def select_lidar_data_list_txtfile_and_make_lidarTimeStamp_txtfile():
-    lidar_data_list_txtfile, lidar_data_list_txtfile_path = select_file(
+    lidar_data_list_txtfile, lidar_data_list_txtfile_path = select_onefile(
         "라이다 데이터 리스트가 적힌 txt파일을 선택 해 주세요")  # gui로 선택하게 하기
     lidar_data_list_txtfile = str(lidar_data_list_txtfile)
     lidar_data_list_txtfile_path = str(lidar_data_list_txtfile_path)

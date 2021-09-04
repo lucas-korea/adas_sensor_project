@@ -222,7 +222,7 @@ def main():
                             tick_ct = header[2]
                         packets = packets + data
                         f.read(2)  # last enter
-                    if (frame_i % 10 == 0 or frame_i % 10 == 2 or frame_i % 10 == 4 or frame_i % 10 == 8):
+                    if (frame_i % 10 == 0 or frame_i % 10 == 2 or frame_i % 10 == 4 or frame_i % 10 == 8 or 1):
                         parsing_packet(packets)
                         point_cloud = cal_lidar_pos()  # global로 선언된 distance, reflectivity, signal_photon, Azimuth를 조합하여 point cloud data 생성
                         point_cloud = rm_zero_point(point_cloud)
