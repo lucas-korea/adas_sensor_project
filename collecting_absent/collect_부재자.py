@@ -5,7 +5,7 @@ import os
 def main():
     dir_path = "C:\\Users\\jcy37\\Downloads"
     file_list = os.listdir(dir_path)
-    file_list = [file for file in file_list if file.startswith("hrm_4400_007_202110")]
+    file_list = [file for file in file_list if file.startswith("hrm_4400_007_20211104")]
     list =[ ]
     for file in file_list:
         data = pd.read_excel(dir_path + '\\' + file)
