@@ -1,5 +1,9 @@
 import os
+import shutil
+
 import pandas as pd
+import math
+from PIL import Image
 pd.set_option('display.max_rows', 1000)
 path = "D:\\GT 생성 업무\\[참고]Heptacam_가이드문서 및 작업자관리시트\\미첨부(내부문서)_온라인 작업자별_할당및통계.xlsx"
 
@@ -32,34 +36,60 @@ def main2():
     df['image_num'] = 0
     df['obj_num'] = 0
     df['pay'] = 0
+    df['line'] = 0
+    df['bbox'] = 0
+    df['paper num'] = 0
     for name in worker_list:
         df.loc[df['name'] == name, 'image_num'] = sum(data['이미지개수'][(data['이름'] == name)])
-        df.loc[df['name'] == name, 'obj_num'] = sum(data['총 객체개수'][data['이름'] == name])
-        # print(len(data['총 객체개수'][(data['이름'] == name)]))
-        # print(data['폴더명'][(data['이름'] == name)].values)
         for i in range(len((data[data['이름'] == name]) == True)):
-            # print(len((data[data['이름'] == name]) == True), name)
-            # print(i)
-            # print( name, data['폴더명'][(data['이름'] == name)].values[i])
-            # print(data2[data2['폴더명'] == data['폴더명'][(data['이름'] == name)].values[i]]['구분'])
             gubun = data2[data2['폴더명'] == data['폴더명'][(data['이름'] == name)].values[i]]['구분']
-            # print("gunun,", gubun)
-
             folder_name = data2[data2['폴더명'] == data['폴더명'][(data['이름'] == name)].values[i]]['폴더명'].values[0]
-            # print("gunun,", gubun)
-            # print("folder name", folder_name)
             if gubun.values[0] == '복합':
-                # print("here", data['총 객체개수'][(data['폴더명'] == folder_name)].values[0] * 150)
-                # print("복합")
                 df.loc[df['name'] == name, 'pay'] += data['총 객체개수'][(data['폴더명'] == folder_name)].values[0] * 150
+                df.loc[df['name'] == name, 'bbox'] += data['bbox'][(data['폴더명'] == folder_name)].values[0]
+                df.loc[df['name'] == name, 'line'] += data['line'][(data['폴더명'] == folder_name)].values[0]
             elif gubun.values[0] == '도심로':
-                # print("도심로")
                 df.loc[df['name'] == name, 'pay'] += data['총 객체개수'][(data['폴더명'] == folder_name)].values[0] * 150
+                df.loc[df['name'] == name, 'bbox'] += data['bbox'][(data['폴더명'] == folder_name)].values[0]
+                df.loc[df['name'] == name, 'line'] += data['line'][(data['폴더명'] == folder_name)].values[0]
             elif gubun.values[0] == '자전로':
-                # print("자전로")
                 df.loc[df['name'] == name, 'pay'] += data['총 객체개수'][(data['폴더명'] == folder_name)].values[0] * 100
+                df.loc[df['name'] == name, 'bbox'] += data['bbox'][(data['폴더명'] == folder_name)].values[0]
+                df.loc[df['name'] == name, 'line'] += data['line'][(data['폴더명'] == folder_name)].values[0]
+            df['paper num'][df['name'] == name] = math.ceil(df['pay'][df['name'] == name] / 300000)
     print(df)
-    print(sum(df['pay']))
+    df.to_excel("작업자 pay계산.xlsx")
+
+
+def build_contest_filetree():
+    file_source = "C:\\Users\\jcy37\\Downloads\\xml"
+    dst = "C:\\Users\\jcy37\\Downloads\\contest용"
+    # print(os.listdir(dst))
+    # for name in os.listdir(dst):
+    #     if len(os.listdir(dst + name)) == 0:
+    #         print( name)
+    # exit(1)
+    for (path, dir, files) in os.walk(dst):
+        print(path)
+        print(len(os.listdir(path)))
+        # for file in files:
+        #     if file.split('.')[1] == 'jpg--' or file.split('.')[1] == 'png--':
+        #         if file[1] == '_':
+        #             try:
+        #                 shutil.copy(path + '\\' + file, dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '\\' + file)
+        #             except FileNotFoundError:
+        #                 os.makedirs(dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0])
+        #                 shutil.copy(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '\\' + file)
+        #     # if file.split('.')[1] == 'png':
+        #     #     im = Image.open(path + '\\' + file).convert('RGB')
+        #     #     im.save(path + '\\' + file.split('.')[0] + '.jpg', 'jpeg')
+        #     elif file[-10:] == "v001_1.xml":
+        #         if file[1] == '_':
+        #             try:
+        #                 shutil.copy(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_annotations_v001_1' + '\\' + file)
+        #             except FileNotFoundError:
+        #                 os.makedirs(dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_annotations_v001_1')
+        #                 shutil.copy(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_annotations_v001_1' + '\\' + file)
 
 if __name__ == "__main__":
-    main2()
+    build_contest_filetree()

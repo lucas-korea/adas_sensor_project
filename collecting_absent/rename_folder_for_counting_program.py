@@ -10,18 +10,47 @@ def make_txt_for_objectCounting():
             if os.path.isdir(path_ + i):
                 f.write('.\\' + folder_name + '\\' + i + ' ' + i[:3] + '\n')
 
-def rename_images_xml_folder():
+def rename_images_xml_create_folder():
     for (path, dir, files) in os.walk(PATH):
         if len(dir) == 2:
             if dir[1][-4:] == 'v001':
-                print(dir)
-                os.rename(path + '\\' + dir[0], path + '\\1')
-                os.rename(path + '\\' + dir[1], path + '\\1_annotations_v001')
+                # print(dir)
+                # print(path)
+                print(os.listdir(path + "\\" + dir[0])[0][0:2])
+                cam_num = os.listdir(path + "\\" + dir[0])[0][0]
+                if os.listdir(path + "\\" + dir[0])[0][1] == '_':
+                    os.rename(path + '\\' + dir[0], path + '\\' + cam_num)
+                    os.rename(path + '\\' + dir[1], path + '\\' + cam_num + '_annotations_v001')
+                else:
+                    os.rename(path + '\\' + dir[0], path + '\\4')
+                    os.rename(path + '\\' + dir[1], path + '\\4_annotations_v001')
     print("====================================================================")
     for (path, dir, files) in os.walk(PATH):
         if len(dir) == 2:
             if dir[1][-4:] == 'v001':
-                print(dir)
+                pass
+                # print(dir)
+
+def rename_images_xml_modify_folder():
+    for (path, dir, files) in os.walk(PATH):
+        if len(dir) == 2:
+            if dir[1][-4:] == 'v001':
+                # print(dir)
+                # print(path)
+                print(os.listdir(path + "\\" + dir[0])[0][0:2])
+                cam_num = os.listdir(path + "\\" + dir[0])[0][0]
+                if os.listdir(path + "\\" + dir[0])[0][1] == '_':
+                    os.rename(path + '\\' + dir[0], path + '\\' + cam_num)
+                    os.rename(path + '\\' + dir[1], path + '\\' + cam_num + '_annotations_v001')
+                else:
+                    os.rename(path + '\\' + dir[0], path + '\\4')
+                    os.rename(path + '\\' + dir[1], path + '\\4_annotations_v001')
+    print("====================================================================")
+    for (path, dir, files) in os.walk(PATH):
+        if len(dir) == 2:
+            if dir[1][-4:] == 'v001':
+                pass
+                # print(dir)
 
 if __name__ == "__main__":
     rename_images_xml_folder()
