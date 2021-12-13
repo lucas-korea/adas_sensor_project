@@ -63,7 +63,7 @@ def main2():
 
 def build_contest_filetree():
     file_source = "C:\\Users\\jcy37\\Downloads\\xml"
-    dst = "C:\\Users\\jcy37\\Downloads\\contest용"
+    dst = "Z:\\NIA1차_2021온라인콘테스트_선별자료\\주간_맑음\\Hepta영상_주간\\배포데이터\\도심로\\60_전방"
     # print(os.listdir(dst))
     # for name in os.listdir(dst):
     #     if len(os.listdir(dst + name)) == 0:

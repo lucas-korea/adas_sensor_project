@@ -7,7 +7,7 @@ import sys
 def main():
     ## LIDAR data recv UDP setting
     print("ouster packet recv wating...")
-    IP_ADDRESS = "192.168.0.118"
+    IP_ADDRESS = "192.168.0.112"
     PORT_NO = 7502
     serverSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     serverSocket.bind((IP_ADDRESS, PORT_NO))
