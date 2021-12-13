@@ -60,7 +60,20 @@ def main2():
     print(df)
     df.to_excel("작업자 pay계산.xlsx")
 
-
+def CountInspection():
+    PATH2 = "D:\\GT 생성 업무\\[참고]Heptacam_가이드문서 및 작업자관리시트\\미첨부(내부문서)_온라인 작업자별_할당및통계.xlsx"
+    data2 = pd.read_excel(PATH2, sheet_name=1)
+    worker_list = ['성선영', '성미애', '신성례', '김민서']
+    df = pd.DataFrame(data=worker_list, columns=['name'])
+    df['image_num'] = 0
+    df['pre_image_num'] = 0
+    for name in worker_list:
+        condition = (data2['작업상태'] == '검수 완료') & (data2['검수자'] == name)
+        df['image_num'][df['name'] == name] = sum(data2[condition]['프레임 개수'])
+        condition = (data2['작업상태'] == '검수 중') & (data2['검수자'] == name)
+        df['pre_image_num'][df['name'] == name] = sum(data2[condition]['프레임 개수'])
+    print(df)
+    print(sum(df['image_num']) , sum(df['pre_image_num']))
 def build_contest_filetree():
     file_source = "C:\\Users\\jcy37\\Downloads\\xml"
     dst = "Z:\\NIA1차_2021온라인콘테스트_선별자료\\주간_맑음\\Hepta영상_주간\\배포데이터\\도심로\\60_전방"
@@ -92,4 +105,4 @@ def build_contest_filetree():
         #                 shutil.copy(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_annotations_v001_1' + '\\' + file)
 
 if __name__ == "__main__":
-    build_contest_filetree()
+    CountInspection()
