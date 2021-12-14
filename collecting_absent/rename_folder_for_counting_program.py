@@ -1,11 +1,11 @@
 import os, glob
 
-PATH = "D:\\GT 생성 업무\\객체생성-검수\\생성완"
+PATH = "Z:\\NIA1차_2021온라인콘테스트_선별자료\\2021온라인콘테스트_배포데이터(4만장)_211206\\학습데이터(40,034장)"
 path_ = PATH + "\\"
-folder_name = "생성완"
+folder_name = "학습데이터(40,034장)"
 def make_txt_for_objectCounting():
     List = os.listdir(PATH)
-    with open("D:\\GT 생성 업무\\객체생성-검수\\" + "test.txt", 'w') as f:
+    with open("Z:\\NIA1차_2021온라인콘테스트_선별자료\\2021온라인콘테스트_배포데이터(4만장)_211206\\" + "test.txt", 'w') as f:
         for i in List:
             if os.path.isdir(path_ + i):
                 f.write('.\\' + folder_name + '\\' + i + ' ' + i[:3] + '\n')
@@ -57,4 +57,7 @@ def rename_images_xml_modify_folder():
                 # print(dir)
 
 if __name__ == "__main__":
-    make_txt_for_objectCounting()
+    PATH = "Z:\\NIA1차_2021온라인콘테스트_선별자료\\2021온라인콘테스트_배포데이터(4만장)_211206\\학습데이터(40,034장)"
+    print(len(os.listdir(PATH)))
+    for i in os.listdir(PATH):
+        print(i)
