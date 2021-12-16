@@ -74,35 +74,46 @@ def CountInspection():
         df['pre_image_num'][df['name'] == name] = sum(data2[condition]['프레임 개수'])
     print(df)
     print(sum(df['image_num']) , sum(df['pre_image_num']))
+
 def build_contest_filetree():
-    file_source = "C:\\Users\\jcy37\\Downloads\\xml"
-    dst = "Z:\\NIA1차_2021온라인콘테스트_선별자료\\주간_맑음\\Hepta영상_주간\\배포데이터\\도심로\\60_전방"
+    file_source = "Z:\\Heptacam_2021온라인콘테스트_평가데이터\\컨테스트용2_야간"
+    dst = "Z:\\Heptacam_2021온라인콘테스트_평가데이터\\컨테스트_학습용_야간_img_파일구조 완성"
+    dst = dst + '\\'
+    cnt = 0
     # print(os.listdir(dst))
     # for name in os.listdir(dst):
     #     if len(os.listdir(dst + name)) == 0:
     #         print( name)
     # exit(1)
-    for (path, dir, files) in os.walk(dst):
+    for (path, dir, files) in os.walk(file_source):
         print(path)
         print(len(os.listdir(path)))
-        # for file in files:
-        #     if file.split('.')[1] == 'jpg--' or file.split('.')[1] == 'png--':
-        #         if file[1] == '_':
-        #             try:
-        #                 shutil.copy(path + '\\' + file, dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '\\' + file)
-        #             except FileNotFoundError:
-        #                 os.makedirs(dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0])
-        #                 shutil.copy(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '\\' + file)
-        #     # if file.split('.')[1] == 'png':
-        #     #     im = Image.open(path + '\\' + file).convert('RGB')
-        #     #     im.save(path + '\\' + file.split('.')[0] + '.jpg', 'jpeg')
-        #     elif file[-10:] == "v001_1.xml":
-        #         if file[1] == '_':
-        #             try:
-        #                 shutil.copy(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_annotations_v001_1' + '\\' + file)
-        #             except FileNotFoundError:
-        #                 os.makedirs(dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_annotations_v001_1')
-        #                 shutil.copy(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_annotations_v001_1' + '\\' + file)
+        for file in files:
+            print(cnt)
+            cnt = cnt + 1
+            if file.split('.')[1] == 'jpg' or file.split('.')[1] == 'png':
+                if file[1] == '_':
+                    try:
+                        shutil.copy(path + '\\' + file, dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '\\' + file)
+                    except FileNotFoundError:
+                        os.makedirs(dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0])
+                        shutil.copy(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '\\' + file)
+                else:
+                    print('wrong file')
+                    print(file)
+            # if file.split('.')[1] == 'png':
+            #     im = Image.open(path + '\\' + file).convert('RGB')
+            #     im.save(path + '\\' + file.split('.')[0] + '.jpg', 'jpeg')
+            elif file[-10:] == "v001_1.xml_nonono":
+                if file[1] == '_':
+                    try:
+                        shutil.copy(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_annotations_v001_1' + '\\' + file)
+                    except FileNotFoundError:
+                        os.makedirs(dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_annotations_v001_1')
+                        shutil.copy(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_annotations_v001_1' + '\\' + file)
+                else:
+                    print('wrong file')
+                    print(file)
 
 if __name__ == "__main__":
-    main2()
+    build_contest_filetree()
