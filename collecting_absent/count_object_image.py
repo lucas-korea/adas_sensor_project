@@ -26,7 +26,7 @@ def main():
     print(df)
 
 def main2():
-    PATH = "D:\\GT 생성 업무\\객체생성-검수\\생성완\\새 Microsoft Excel 워크시트.xlsx"
+    PATH = "D:\\GT 생성 업무\\객체생성-검수\\생성완\\새 Microsoft Excel 워크시트 (2).xlsx"
     data = pd.read_excel(PATH)
     PATH2 = "D:\\GT 생성 업무\\[참고]Heptacam_가이드문서 및 작업자관리시트\\미첨부(내부문서)_온라인 작업자별_할당및통계.xlsx"
     data2 = pd.read_excel(PATH2, sheet_name=1)
@@ -58,7 +58,7 @@ def main2():
                 df.loc[df['name'] == name, 'line'] += data['line'][(data['폴더명'] == folder_name)].values[0]
             df['paper num'][df['name'] == name] = math.ceil(df['pay'][df['name'] == name] / 300000)
     print(df)
-    df.to_excel("작업자 pay계산.xlsx")
+    df.to_excel("작업자 pay계산 (2).xlsx")
 
 def CountInspection():
     PATH2 = "D:\\GT 생성 업무\\[참고]Heptacam_가이드문서 및 작업자관리시트\\미첨부(내부문서)_온라인 작업자별_할당및통계.xlsx"
@@ -105,4 +105,4 @@ def build_contest_filetree():
         #                 shutil.copy(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_annotations_v001_1' + '\\' + file)
 
 if __name__ == "__main__":
-    CountInspection()
+    main2()

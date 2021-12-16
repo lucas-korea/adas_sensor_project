@@ -57,7 +57,4 @@ def rename_images_xml_modify_folder():
                 # print(dir)
 
 if __name__ == "__main__":
-    PATH = "Z:\\NIA1차_2021온라인콘테스트_선별자료\\2021온라인콘테스트_배포데이터(4만장)_211206\\학습데이터(40,034장)"
-    print(len(os.listdir(PATH)))
-    for i in os.listdir(PATH):
-        print(i)
+    rename_images_xml_modify_folder()
