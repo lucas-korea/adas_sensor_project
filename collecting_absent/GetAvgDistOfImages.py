@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import shutil
 
 def GetAvgOfImages():
     PATH = "H:\\직박"
@@ -66,5 +67,46 @@ def GetAvgOfImages2():
     a = np.asarray(a)
     print(fifty_over, ten_under, np.average(a), len(a))
 
+
+def build_contest_filetree():
+    file_source = "D:\\GT 생성 업무\\컨테스트png2jpg"
+    dst =         "D:\\GT 생성 업무\\컨테스트png2jpg"
+    dst = dst + '\\'
+    cnt = 0
+    # print(os.listdir(dst))
+    # for name in os.listdir(dst):
+    #     if len(os.listdir(dst + name)) == 0:
+    #         print( name)
+    # exit(1)
+    for (path, dir, files) in os.walk(file_source):
+        print(path)
+        print(len(os.listdir(path)))
+        for file in files:
+            print(cnt)
+            cnt = cnt + 1
+            if file.split('.')[1] == 'jpg':
+                if file[1] == '_':
+                    try:
+                        shutil.move(path + '\\' + file, dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '\\' + file)
+                    except FileNotFoundError:
+                        os.makedirs(dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0])
+                        shutil.move(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '\\' + file)
+                else:
+                    print('wrong file')
+                    print(file)
+            # if file.split('.')[1] == 'png':
+            #     im = Image.open(path + '\\' + file).convert('RGB')
+            #     im.save(path + '\\' + file.split('.')[0] + '.jpg', 'jpeg')
+            elif file[-10:] == "v001_1.xml--":
+                if file[1] == '_':
+                    try:
+                        shutil.move(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_annotations_v001_1' + '\\' + file)
+                    except FileNotFoundError:
+                        os.makedirs(dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_annotations_v001_1')
+                        shutil.move(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_annotations_v001_1' + '\\' + file)
+                else:
+                    print('wrong file')
+                    print(file)
+
 if __name__ == "__main__":
-    GetAvgOfImages2()
+    build_contest_filetree()

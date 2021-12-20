@@ -3,7 +3,7 @@ import pandas as pd
 import csv
 import shutil
 
-worker_list = ['권미애', '김민서', '노수진', '노은영', '노화중', '박윤미', '성미애', '성선영', '신성례', '윤가영', '오연주',
+worker_list = ['권미애', '김민서', '노수진', '노은영', '노화중', '박윤미', '성미애', '성선영', '신성례', '윤가영', '윤점동', '오연주'
                    '이민희', '정성미', '강인선', '고지연', '김다예', '배은이', '윤기주', '이상미', '정금연', '정다운', '정유림', '정혜림']
 result = []
 paper_num_ = 0
@@ -149,6 +149,66 @@ def ImageName(case_name, PATH, i):
     for (path, dirs, files) in os.walk(PATH+'\\'+case_name):
         if len(path.split('\\')[-1]) == 1:
             return files[i].split('.')[0]
+
+def GetJungBingImgXml():
+    PATH_auto = "C:\\Users\\jcy37\\Desktop\\과제\\전측방\\수당수령증_자동화"
+    PATH_inspec = "D:\\GT 생성 업무\\객체생성-검수\\생성완"
+    dst = "C:\\Users\\jcy37\\Desktop\\과제\\전측방\\수당수령증_자동화\\수당수령이미지_파일명생성버전"
+    df_sudang = pd.read_excel(PATH_auto + '\\' + "수당수령증_2021_전측방시트.xlsx")
+    cnt = 0
+    BREAK = False
+    for i in range(len(df_sudang)):
+        print(cnt)
+        cnt = cnt + 1
+        cur_exp_name = df_sudang.iloc[i]['시험명']
+        cam_num = cur_exp_name[0]
+        if cam_num not in ['1', '2', '3']:
+            cam_num = '4'
+        NAME = df_sudang.iloc[i]['작업자']
+        if NAME == '윤점동':
+            NAME = '윤가영'
+        suc = 0
+        for (path, dirs, files) in os.walk(PATH_inspec):
+            if BREAK:
+                BREAK = False
+                break
+            if path.split('\\')[-2][0:3] == NAME and path.split('\\')[-4] == '생성완': #상위상위폴더 이름 첫 3글자가 작업자 이름이랑 매칭되는지 확인 상상상위
+                for j in range(len(files)):
+                    if files[j].split('.')[0] == cur_exp_name:
+                        j2 = int(j + df_sudang.iloc[i]['프레임수'] * 2/4)
+                        j3 = int(j + df_sudang.iloc[i]['프레임수'] * 3/4)
+                        try:
+                            os.mkdir(dst + '\\' + cur_exp_name)
+                        except:
+                            pass
+                        os.mkdir(dst + '\\' + cur_exp_name +'\\' + cam_num)
+                        os.mkdir(dst + '\\' + cur_exp_name + '\\' + cam_num + "_annotations_v001")
+                        shutil.copy2(path +'\\' + files[j], dst + '\\' + cur_exp_name +'\\' + cam_num + '\\' + files[j])
+                        shutil.copy2(path + '\\' + files[j2], dst + '\\' + cur_exp_name +'\\' + cam_num + '\\' + files[j2])
+                        shutil.copy2(path + '\\' + files[j3], dst + '\\' + cur_exp_name +'\\' + cam_num + '\\' + files[j3])
+                        shutil.copy2('\\'.join(path.split('\\')[0:-1]) +'\\' + os.path.basename(path)+"_annotations_v001" + '\\' + files[j].split('.')[0] + "_v001.xml" ,
+                                     dst + '\\' + cur_exp_name + '\\' + cam_num + "_annotations_v001" + '\\' + files[j].split('.')[0] + "_v001.xml")
+                        shutil.copy2('\\'.join(path.split('\\')[0:-1]) +'\\' + os.path.basename(path)+"_annotations_v001" + '\\' + files[j2].split('.')[0] + "_v001.xml" ,
+                                     dst+ '\\' + cur_exp_name + '\\' + cam_num + "_annotations_v001"  + '\\' + files[j2].split('.')[0] + "_v001.xml")
+                        shutil.copy2('\\'.join(path.split('\\')[0:-1]) +'\\' + os.path.basename(path)+"_annotations_v001" + '\\' + files[j3].split('.')[0] + "_v001.xml" ,
+                                     dst+ '\\' + cur_exp_name + '\\' + cam_num + "_annotations_v001"  + '\\' + files[j3].split('.')[0] + "_v001.xml")
+                        suc = 1
+                        BREAK = True
+                        break
+            else:
+                pass
+        if suc == 0:
+            print('fail getting files!!!')
+            print(df_sudang.iloc[i]['시험명'])
+                # print(df_sudang.iloc[i]['시험명'])
+                # print(path.split('\\')[-2][0:3] , len(path.split('\\')[-3]) )
+
+def MakeModifyXML():
+    for (path, dirs, files) in os.walk("C:\\Users\\jcy37\\Desktop\\과제\\전측방\\수당수령증_자동화\\수당수령이미지"):
+        for file in files:
+            if file.split('.')[-1] == 'xml':
+                shutil.copy2(path + '\\' + file, path + '\\' + file.split('.')[0] + '_1.xml')
+
 
 if __name__ == "__main__":
     main()

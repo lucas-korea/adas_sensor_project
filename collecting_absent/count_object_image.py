@@ -76,44 +76,114 @@ def CountInspection():
     print(sum(df['image_num']) , sum(df['pre_image_num']))
 
 def build_contest_filetree():
-    file_source = "Z:\\Heptacam_2021온라인콘테스트_평가데이터\\컨테스트용2_야간"
-    dst = "Z:\\Heptacam_2021온라인콘테스트_평가데이터\\컨테스트_학습용_야간_img_파일구조 완성"
+    file_source = "C:\\Users\\jcy37\\Desktop\\컨테스트 파일\\학습용데이터\\컨테스트_학습용_주간_xml"
+    dst =         "C:\\Users\\jcy37\\Desktop\\컨테스트 파일\\학습용데이터\\컨테스트_학습용_주간_img_파일구조완성"
     dst = dst + '\\'
     cnt = 0
-    # print(os.listdir(dst))
-    # for name in os.listdir(dst):
-    #     if len(os.listdir(dst + name)) == 0:
-    #         print( name)
-    # exit(1)
     for (path, dir, files) in os.walk(file_source):
         print(path)
         print(len(os.listdir(path)))
         for file in files:
             print(cnt)
             cnt = cnt + 1
-            if file.split('.')[1] == 'jpg' or file.split('.')[1] == 'png':
+            if file.split('.')[1] == 'jpg--' or file.split('.')[1] == 'png--':
                 if file[1] == '_':
                     try:
-                        shutil.copy(path + '\\' + file, dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '\\' + file)
+                        shutil.move(path + '\\' + file, dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '\\' + file)
                     except FileNotFoundError:
                         os.makedirs(dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0])
-                        shutil.copy(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '\\' + file)
+                        shutil.move(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '\\' + file)
                 else:
                     print('wrong file')
                     print(file)
             # if file.split('.')[1] == 'png':
             #     im = Image.open(path + '\\' + file).convert('RGB')
             #     im.save(path + '\\' + file.split('.')[0] + '.jpg', 'jpeg')
-            elif file[-10:] == "v001_1.xml_nonono":
+            elif file[-10:] == "v001_1.xml":
                 if file[1] == '_':
                     try:
-                        shutil.copy(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_annotations_v001_1' + '\\' + file)
+                        shutil.move(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_annotations_v001_1' + '\\' + file)
                     except FileNotFoundError:
                         os.makedirs(dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_annotations_v001_1')
-                        shutil.copy(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_annotations_v001_1' + '\\' + file)
+                        shutil.move(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_annotations_v001_1' + '\\' + file)
                 else:
                     print('wrong file')
                     print(file)
 
+def png2jpg():
+    file_source = "C:\\Users\\jcy37\\Desktop\\과제\\전측방\\수당수령증_자동화\\수당수령이미지_파일명검수버전"
+    cnt = 0
+    for (path, dir, files) in os.walk(file_source):
+        print(path)
+        print(len(os.listdir(path)))
+        for file in files:
+            print(cnt)
+            cnt = cnt + 1
+            if file.split('.')[1] == 'png':
+                try:
+                    im = Image.open(path + '\\' + file).convert('RGB')
+                    im.save(path + '\\' + file.split('.')[0] + '.jpg', 'jpeg')
+                    os.remove(path + '\\' + file)
+                except OSError as e:
+                    print(e)
+                    print(path + '\\' + file)
+                    f = open("오류파일2.txt", 'a')
+                    f.write(str(e))
+                    f.write(path + '\\' + file)
+                    f.write('\n')
+                    f.close()
+
+
+def checking_same_imgxml_number():
+    file_source = "C:\\Users\\jcy37\\Desktop\\컨테스트 파일\\학습용데이터\\컨테스트_학습용_주간_img_파일구조완성"
+    for (path, dirs, files) in os.walk(file_source):
+        if len(path.split('\\')[-1]) == 15:
+            a = len(os.listdir(path + '\\' + dirs[0]))
+            b = len(os.listdir(path + '\\' + dirs[1]))
+            try:
+                c = len(os.listdir(path + '\\' + dirs[2]))
+                d = len(os.listdir(path + '\\' + dirs[3]))
+                if c != d:
+                    print(path)
+                    print(dirs[2], dirs[3])
+            except:
+                pass
+            if a != b:
+                print(path)
+                print(dirs[0], dirs[1])
+
+def CountImageThatIwant():
+    file_source = "C:\\Users\\jcy37\\Desktop\\컨테스트 파일\\학습용데이터\\컨테스트_학습용_통합_img_파일구조완성"
+    cnt = 0
+    with open("testdatalist.txt", 'a') as f:
+        for (path, dirs, files) in os.walk(file_source):
+            for file in files:
+                if file.split('.')[-1] == 'png':
+                    print(cnt)
+                    cnt = cnt + 1
+                    f.write(file)
+                    f.write('\n')
+
+def SumingXml():
+    # f = open("testdatalist.txt" ,'r')
+    # file_name_list = []
+    # for i in range(10000):
+    #     file_name_list.append(f.readline().split('.')[0])
+    # print(file_name_list)
+    # print(len(file_name_list))
+    file_source = "C:\\Users\\jcy37\\Desktop\\컨테스트 파일\\학습용데이터\\컨테스트_학습용_통합_img_파일구조완성"
+    # dst = "C:\\Users\\jcy37\\Desktop\\컨테스트 파일\\학습용데이터\\컨테스트_학습용_통합_xml_파일구조완성"
+    # dst = dst + '\\'
+    cnt = 0
+    for (path, dirs, files) in os.walk(file_source):
+        for file in files:
+            if file.split('.')[-1] == 'jpg':
+                print(cnt)
+                cnt = cnt + 1
+                try:
+                    shutil.move("C:\\Users\\jcy37\\Desktop\\컨테스트 파일\\학습용데이터\\컨테스트_학습용_통합_xml" + '\\' + file.split('.')[0] + '_v001_1.xml',
+                                 path + '\\' + file.split('.')[0] + '_v001_1.xml')
+                except:
+                    print(path, file)
 if __name__ == "__main__":
-    build_contest_filetree()
+    png2jpg()
