@@ -1,7 +1,12 @@
 import os
 import pandas as pd
 import csv
+import cv2
 import shutil
+import xml.etree.ElementTree as ET
+import numpy as np
+from docx import Document
+from docx.shared import Pt, RGBColor
 
 worker_list = ['권미애', '김민서', '노수진', '노은영', '노화중', '박윤미', '성미애', '성선영', '신성례', '윤가영', '윤점동', '오연주'
                    '이민희', '정성미', '강인선', '고지연', '김다예', '배은이', '윤기주', '이상미', '정금연', '정다운', '정유림', '정혜림']
@@ -23,21 +28,15 @@ def main():
     wr = csv.writer(f)
     wr.writerow(['이름', '시험명', '프레임수', '금액','오브젝트 개수'])
     name = ''
-    name2 = ''
     day_i = 0
     for i in range(len(result)):
         name2 = result[i][0]
         if name != name2:
             day_i = 0
         name = name2
-        wr.writerow(result[i][:4] + ["Object개수:  차선_{}/  차량 _{}/ 보행자_{}/  신호등_{}/  표지판_{}/  노면표식_{}/ 노면화살표_{}".format((result[i][4]), (result[i][5]),
-                                                                                       (result[i][6]),
-                                                                                       (result[i][7]),
-                                                                                       (result[i][8]),
-                                                                                       (result[i][9]),
-                                                                                       (result[i][10]))]
-                                                                                        + [sum(result[i][4:11])]
-                                                                                        + [day_list[day_i]])
+        wr.writerow(result[i][:4] + ["Object개수:  차선_{}/  차량 _{}/ 보행자_{}/  신호등_{}/  표지판_{}/  노면표식_{}/ 노면화살표_{}".
+                    format((result[i][4]), (result[i][5]),(result[i][6]),(result[i][7]),(result[i][8]),
+                    (result[i][9]),(result[i][10]))] + [sum(result[i][4:11])]+ [day_list[day_i]])
         day_i = day_i + 1
 
 def OpenCsv_ObjCounting(file, PATH):
@@ -89,7 +88,6 @@ def OpenCsv_ObjCounting(file, PATH):
     write_mail_merge_excel(file.split('_')[0][:3], img_name, img_num, total, Lane_num, Vehicle_num, Pedestrian_num, TraficLight_num, TraficSign_num,
                            RoadMark_num, RoadMarkArrow)
 
-
 def write_mail_merge_excel(name, img_name, img_num, total, Lane_num, Vehicle_num, Pedestrian_num, TraficLight_num, TraficSign_num, RoadMark_num, RoadMarkArrow):
     global paper_num_
     global result
@@ -127,7 +125,6 @@ def DefProperate_divined_pay(file, PATH):
     properate_divined_pay = total / paper_num
     return properate_divined_pay
 
-
 def DefineFee(gubun):
     if gubun == '자전로':
         return 100
@@ -143,7 +140,6 @@ def LoadGubun(case_name = '배은이1206'):
     PATH = "D:\\GT 생성 업무\\[참고]Heptacam_가이드문서 및 작업자관리시트\\미첨부(내부문서)_온라인 작업자별_할당및통계.xlsx"
     data = pd.read_excel(PATH, sheet_name=1)
     return data[data['폴더명'] == case_name]['구분'].values[0]
-
 
 def ImageName(case_name, PATH, i):
     for (path, dirs, files) in os.walk(PATH+'\\'+case_name):
@@ -203,11 +199,90 @@ def GetJungBingImgXml():
                 # print(df_sudang.iloc[i]['시험명'])
                 # print(path.split('\\')[-2][0:3] , len(path.split('\\')[-3]) )
 
-def MakeModifyXML():
+def ReNameMakeModifyXML():
     for (path, dirs, files) in os.walk("C:\\Users\\jcy37\\Desktop\\과제\\전측방\\수당수령증_자동화\\수당수령이미지"):
         for file in files:
             if file.split('.')[-1] == 'xml':
                 shutil.copy2(path + '\\' + file, path + '\\' + file.split('.')[0] + '_1.xml')
+
+def DrawJungbingImg():
+    PATH = "C:\\Users\\jcy37\\Desktop\\과제\\전측방\\수당수령증_자동화\\수당수령이미지_파일명검수버전"
+    i = 0
+    for (path, dirs, files) in os.walk(PATH):
+        if (path[-5:] == "001_1"):
+            for file in os.listdir(path):
+                full_path = '\\'.join(path.split('\\')[0:-1]) + '\\' + path.split('\\')[-1][0] + '\\' + file[:-11] + '.jpg'
+                img_array = np.fromfile(full_path, np.uint8)
+                img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+                if img is None:
+                    print('Image load failed')
+                    exit()
+                i = i + 1
+                tree = ET.parse(path + '\\' + file)
+                root = tree.getroot()
+                for obj in root.findall('object'):
+                    for bbox in obj.findall('bndbox'):
+                        cv2.rectangle(img, (int(bbox.find('xmin').text), int(bbox.find('ymin').text)), (int(bbox.find('xmax').text), int(bbox.find('ymax').text)), (255, 255,0), 2)
+                for line in root.findall('line'):
+                    for controlPt in line.findall('controlPt'):
+                        spot_list = { 'x' : [], 'y' : []}
+                        for xlist in controlPt.findall('x'):
+                            spot_list['x'].append(int(xlist.text))
+                        for ylist in controlPt.findall('y'):
+                            spot_list['y'].append(int(ylist.text))
+                        for i in range(len(spot_list['x']) - 1):
+                            cv2.line(img, (spot_list['x'][i] , spot_list['y'][i]), (spot_list['x'][i+1] , spot_list['y'][i+1]), (0, 255, 255), 5)
+                try:
+                    os.mkdir('\\'.join(path.split('\\')[0:-1]) + '\\' + "JungBing")
+                except:
+                    pass
+                print('\\'.join(path.split('\\')[0:-1]) + '\\' + "JungBing" + '\\' + file[:-11] + '.jpg')
+                result, encoded_img = cv2.imencode('.jpg', img)
+                if result:
+                    with open('\\'.join(path.split('\\')[0:-1]) + '\\' + "JungBing" + '\\' + file[:-11] + '.jpg', mode='w+b') as f:
+                        encoded_img.tofile(f)
+                # cv2.imwrite('\\'.join(path.split('\\')[0:-1]) + '\\' + "JungBing" + '\\' + file[:-11] + '.jpg', img)
+                # print(cv2.imwrite('\\'.join(path.split('\\')[0:-1]) + '\\' + "JungBing" + '\\' + file[:-11] + '.jpg' ,img))
+                # cv2.imshow("ff", img)
+                # cv2.waitKey()
+
+def MakeExtraWord():
+    PATH = "C:\\Users\\jcy37\\Desktop\\과제\\전측방\\수당수령증_자동화\\수당수령증_2021_전측방시트.xlsx"
+    document = Document()
+    data = pd.read_excel(PATH)
+    cnt = 1
+    for exp_name in data['시험명']:
+        for (path, dirs, files) in os.walk('C:\\Users\\jcy37\\Desktop\\과제\\전측방\\수당수령증_자동화\\수당수령이미지_파일명검수버전'):
+            if path.split('\\')[-1] == exp_name:
+                print(cnt)
+                cnt = cnt + 1
+                para = document.add_paragraph()
+                run = para.add_run('    전측방 학습용 영상 Annotation 작업 수당 수령증 별첨 증빙자료')
+                run.font.name = "Calibri"
+                run.font.color.rgb = RGBColor(0, 0, 0)
+                run.font.size = Pt(14)
+                run.bold = True
+
+                para = document.add_paragraph()
+                # run = para.add_run('시험명 : {}'.format(exp_name))
+                para.add_run('시험명 : {}'.format(exp_name))
+                para = document.add_paragraph()
+                run = para.add_run()
+                for file in os.listdir(path + '\\JungBing'):
+                    img_array = np.fromfile(path + '\\JungBing\\' + file, np.uint8)
+                    img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+                    dst = cv2.resize(img, dsize=(320, 180), interpolation=cv2.INTER_AREA)
+                    cv2.imwrite("C:\\Users\\jcy37\\Desktop\\dst.jpg", dst)
+                    run.add_picture("C:\\Users\\jcy37\\Desktop\\dst.jpg")
+                month = str(data[data['시험명'] == exp_name]['월'].values[0])
+                day = str(int(data[data['시험명'] == exp_name]['일'].values[0]))
+                if len(day) == 1:
+                    day = '0' + day
+                document.save(
+                    'C:\\Users\\jcy37\\Desktop\\과제\\전측방\\수당수령증_자동화\\별첨\\' + data[data['시험명'] == exp_name]['작업자'].values[
+                        0] + '_' +
+                    month + day + ".docx")
+                document = Document()
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 import cv2
 import os
+
 # 영상의 의미지를 연속적으로 캡쳐할 수 있게 하는 class
 path_dir = 'D:\\H2BUS_3차년도_DB_정제중(20211018)\\20210205_수소버스_도로주행영상(전후좌우)\\1번_전방'
 count = 0
@@ -16,7 +17,9 @@ for file in file_list:
             try:
                 cv2.imwrite("D:\\20210205_1th_image\\" + file[:-4] + "%d.jpg" % count, image)
                 print('Saved frame%d.jpg' % count)
-            except:
+            except Exception as e:
+                print(e)
+                print("D:\\20210205_1th_image\\" + file[:-4] + "%d.jpg")
                 break
         count += 1
     vidcap.release()

@@ -1,8 +1,7 @@
 import pandas as pd
-import numpy as np
 import os
 
-def main():
+def collecting_absent():
     dir_path = "C:\\Users\\jcy37\\Downloads"
     file_list = os.listdir(dir_path)
     file_list = [file for file in file_list if file.startswith("hrm_4400_007_20211207")]
@@ -29,5 +28,6 @@ def main():
     print(list)
     list.to_excel("부재자현황.xlsx")
     new_data = pd.DataFrame
+
 if __name__ == "__main__":
-    main()
+    collecting_absent()
