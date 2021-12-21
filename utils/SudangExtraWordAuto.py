@@ -4,7 +4,6 @@ from docx.oxml.ns import qn, nsdecls
 import cv2
 import numpy as np
 import os
-from docx.oxml import parse_xml
 import pandas as pd
 
 PATH = "C:\\Users\\jcy37\\Desktop\\과제\\전측방\\수당수령증_자동화\\수당수령증_2021_전측방시트.xlsx"
