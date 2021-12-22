@@ -80,6 +80,41 @@ def build_contest_filetree():
                     print('wrong file')
                     print(file)
 
+def poscar_build_contest_filetree():
+    file_source = "C:\\Users\\정찬영\\Desktop\\2021_Object_Detection_Foscar-master\\yolov5\\runs\\detect\\exp1\\labels"
+    dst =         "C:\\Users\\정찬영\\Desktop\\2021_Object_Detection_Foscar-master\\yolov5\\runs\\detect\\exp1\\contest_format"
+    dst = dst + '\\'
+    cnt = 0
+    for (path, dir, files) in os.walk(file_source):
+        print(path)
+        print(len(os.listdir(path)))
+        for file in files:
+            print(cnt)
+            cnt = cnt + 1
+            if file.split('.')[1] == 'jpg--' or file.split('.')[1] == 'png--':
+                if file[1] == '_':
+                    try:
+                        shutil.move(path + '\\' + file, dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '\\' + file)
+                    except FileNotFoundError:
+                        os.makedirs(dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0])
+                        shutil.move(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '\\' + file)
+                else:
+                    print('wrong file')
+                    print(file)
+            # if file.split('.')[1] == 'png':
+            #     im = Image.open(path + '\\' + file).convert('RGB')
+            #     im.save(path + '\\' + file.split('.')[0] + '.jpg', 'jpeg')
+            elif file[-4:] == ".xml":
+                if file[1] == '_':
+                    try:
+                        shutil.copy2(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_Result' + '\\' + file[:-4] + "_v001_1.xml")
+                    except FileNotFoundError:
+                        os.makedirs(dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_Result')
+                        shutil.copy2(path + '\\' + file , dst + file.split('_')[1] + '_' + file.split('_')[2] + '\\' + file[0] + '_Result' + '\\' + file[:-4] + "_v001_1.xml")
+                else:
+                    print('wrong file')
+                    print(file)
+
 #file_source내의 png파일을 jpg로 바꾸기. 동일 폴더 내에 생성. png를 삭제할지, 말지는 알아서.
 def png2jpg():
     file_source = "C:\\Users\\jcy37\\Desktop\\과제\\전측방\\수당수령증_자동화\\수당수령이미지_파일명검수버전"
@@ -153,4 +188,4 @@ def GettCorrespondingXml(): #file_source에서, jpg 파일을 찾아, 그에 대
                 except:
                     print(path, file)
 if __name__ == "__main__":
-    CountInspection2()
+    poscar_build_contest_filetree()
