@@ -5,7 +5,7 @@ import csv
 def CollectAbsent():
     dir_path = "C:\\Users\\jcy37\\Downloads"
     file_list = os.listdir(dir_path)
-    file_list = [file for file in file_list if file.startswith("hrm_4400_007_20211104")]
+    file_list = [file for file in file_list if file.startswith("hrm_4400_007_202201")]
     if len(file_list) < 20:
         print("file list error !!!!")
         exit(1)
@@ -26,7 +26,7 @@ def CollectAbsent():
     df = pd.DataFrame(list)
     df.columns = ["month", "date", "member", "reason", "location"]
     df = df.sort_values(by=["date"], axis=0)
-    f = open("test1.csv", 'w', newline='', encoding='utf-8-sig')
+    f = open("absent.csv", 'w', newline='', encoding='utf-8-sig')
     wr = csv.writer(f)
     wr.writerow(["month", "date", "member", "reason", "location"])
     for i in range(len(df)):
