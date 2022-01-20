@@ -49,5 +49,13 @@ def GetImgFromImgs():
                         if i % 30 == 0:
                             shutil.copy2(path + '\\' + files[i], Root + '\\' + Dir + '_sampling' + '\\' + path.split('\\')[-1] + '\\' + files[i])
 
+def getimg30():
+    PATH = "Z:\\side_cam_night\\20220114_132018\\5"
+    cnt = 0
+    for file in os.listdir(PATH):
+        if cnt % 3 == 0:
+            shutil.move(PATH + '\\' + file, 'Z:\\side_cam_night\\20220114_132018\\5_sampling\\' + file)
+        cnt = cnt + 1
+
 if __name__ == "__main__":
-    GetImgFromImgs()
+    getimg30()
