@@ -9,7 +9,7 @@ from PIL import Image
 # 할당및 통계에서는 케이스 이름과 그에 해당하는 이미지 속성만 추출
 # 김선임님 Counting 프로그램의 경우, 전체 합산 결과와 각 케이스별 개발 결과는 오차가 있으므로 참고
 def CalculateCreatePay():
-    PATH = "D:\\GT 생성 업무\\객체생성-검수\\생성완\\새 Microsoft Excel 워크시트 (3).xlsx"
+    PATH = "D:\\GT 생성 업무\\객체생성-검수\\생성완\\새 Microsoft Excel 워크시트 (4).xlsx"
     data = pd.read_excel(PATH)
     PATH2 = "D:\\GT 생성 업무\\[참고]Heptacam_가이드문서 및 작업자관리시트\\미첨부(내부문서)_온라인 작업자별_할당및통계.xlsx"
     data2 = pd.read_excel(PATH2, sheet_name=1)
@@ -42,7 +42,7 @@ def CalculateCreatePay():
                 df.loc[df['name'] == name, 'line'] += data['line'][(data['폴더명'] == folder_name)].values[0]
             df['paper num'][df['name'] == name] = math.ceil(df['pay'][df['name'] == name] / 300000)
     print(df)
-    df.to_excel("작업자 pay계산_이민희.xlsx")
+    df.to_excel("작업자 pay계산_0207.xlsx")
 
 
 #file_source로부터, dst에 대회용 파일구조를 build. 연월일_시분초 이름을 가지고 있어야 하며, 이미지,xml이름을 기준으로 폴더, 파일을 생성(이동)한다

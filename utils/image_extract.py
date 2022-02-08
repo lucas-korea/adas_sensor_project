@@ -50,12 +50,15 @@ def GetImgFromImgs():
                             shutil.copy2(path + '\\' + files[i], Root + '\\' + Dir + '_sampling' + '\\' + path.split('\\')[-1] + '\\' + files[i])
 
 def getimg30():
-    PATH = "Z:\\side_cam_night\\20220114_132018\\5"
+    PATH = "G:\\211018~19 세종 버스실험\\211028_측전방_야간_0\\1"
     cnt = 0
     for file in os.listdir(PATH):
-        if cnt % 3 == 0:
-            shutil.move(PATH + '\\' + file, 'Z:\\side_cam_night\\20220114_132018\\5_sampling\\' + file)
+        if cnt % 5 == 0:
+            shutil.move(PATH + '\\' + file, 'G:\\211018~19 세종 버스실험\\211028_측전방_야간_0\\211028_측전방_야간_0_정제\\' + file)
         cnt = cnt + 1
 
 if __name__ == "__main__":
-    getimg30()
+    PATH = "D:\\GT 생성 업무\\객체생성-검수\\검수완"
+    for path, dirs, files in os.walk(PATH):
+        if len(dirs) < 3 and len(files) < 2:
+            print(path, files, dirs)

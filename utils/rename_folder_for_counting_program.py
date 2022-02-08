@@ -107,9 +107,12 @@ def CheckCaseExist():
     print(CaseList, len(CaseList))
 
 def RenameBusCams():
-    PATH = "D:\\GT 생성 업무\\객체생성-검수\\버스전방\\211028_전방_야간_1_sampling\\2"
+    PATH = "D:\\GT 생성 업무\\객체생성-검수\\검수완\\1\\정다운0108\\4"
     for file in os.listdir(PATH):
+        # if file[0:2] == '2_':
+        #     pass
+        # else:
         os.rename(PATH + '\\' + file, PATH + '\\' + '2_' + file)
 
 if __name__ == "__main__":
-    getCaseNamebyFolderName()
+    RenameBusCams()
