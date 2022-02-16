@@ -53,25 +53,28 @@ def rename_images_xml_modify_folder():
 
 
 def getCaseNamebyFolderName():
-    SidecamList = np.array(['윤기주0110','성미애0110','성선영0110','박윤미0111','노수진0112','오연주0112','박윤미0113','이민희0113','정다운0114','정다운0117','성미애0117','신성례0118'])
-    FrontcamList = np.array(['윤가영1122', '성미애1210', '윤가영1210','정다운1118','정다운1130','권미애1206','이민희0118','박윤미0118'
-                                ,'정성미0117','강인선0117','김다예0117','정성미1125','강인선1130','성미애1207','윤가영1207','윤기주0118','이상미0114','배은이0114'])
+    SidecamList = np.array(['윤기주0110','성미애0110','성선영0110','박윤미0111','노수진0112','오연주0112',
+                            '박윤미0113','이민희0113','정다운0114','정다운0117','성미애0117','신성례0118','노수진0120','성선영0120','정다운0120' ,'성미애0121'])
+
+    FrontcamList = np.array(['정다운1118','윤가영1122','정성미1125','정다운1130','강인선1130','권미애1206', '성미애1207','윤가영1207', '성미애1210', '윤가영1210',
+                             '이상미0114','배은이0114','강인선0117','김다예0117','정성미0117','윤기주0118','이민희0118','박윤미0118'])
     print(len(SidecamList), len(FrontcamList))
     PATH = 'D:\\GT 생성 업무\\객체생성-검수'
     SidecamCaseList = []
     FrontcamCaseList = []
     cnt = 0
     for (path, dir, files) in os.walk(PATH):
-        if path.split('\\')[-1] in SidecamList:
+        if path.split('\\')[-2] in SidecamList:
             if len(files) > 10:
                 for file in files:
                     if '_'.join(file.split('_')[0:3]) not in SidecamCaseList:
+
                         SidecamCaseList.append('_'.join(file.split('_')[0:3]))
             cnt = cnt + 1
             print(path)
             # print(path.split('\\')[-1] , np.where(SidecamList == path.split('\\')[-1]))
-            SidecamList = np.delete(SidecamList, np.where(SidecamList == path.split('\\')[-1]))
-        elif path.split('\\')[-1] in FrontcamList:
+            SidecamList = np.delete(SidecamList, np.where(SidecamList == path.split('\\')[-2]))
+        elif path.split('\\')[-2] in FrontcamList:
             if len(files) > 10:
                 for file in files:
                     if '_'.join(file.split('_')[0:3]) not in FrontcamCaseList:
@@ -79,7 +82,7 @@ def getCaseNamebyFolderName():
             cnt = cnt + 1
             print(path)
             # print(path.split('\\')[-1] , np.where(FrontcamList == path.split('\\')[-1]))
-            FrontcamList = np.delete(FrontcamList, np.where(FrontcamList == path.split('\\')[-1]))
+            FrontcamList = np.delete(FrontcamList, np.where(FrontcamList == path.split('\\')[-2]))
     print('cnt = ', cnt)
     print('SidecamList : ', SidecamList, len(SidecamList))
     print(SidecamCaseList)
