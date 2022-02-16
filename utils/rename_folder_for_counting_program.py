@@ -98,9 +98,9 @@ def getCaseNamebyFolderName():
 def CheckCaseExist():
     pd.set_option('display.max_rows', 500)
     df = pd.read_excel("D:\\GT 생성 업무\\[참고]Heptacam_가이드문서 및 작업자관리시트\\미첨부(내부문서)_온라인 작업자별_할당및통계.xlsx", sheet_name='작업자통계_정찬영')
-    CaseList =  df[df['작업상태'] != '객체생성 진행중']['폴더명'].values
+    CaseList =  df[df['작업상태'] == '검수 완료']['폴더명'].values
     print(CaseList, len(CaseList))
-    for path, dirs, files in os.walk("D:\\GT 생성 업무\\객체생성-검수\\생성완"):
+    for path, dirs, files in os.walk("D:\\GT 생성 업무\\객체생성-검수\\검수완"):
         for dir in dirs:
             if dir in CaseList:
                 CaseList = np.delete(CaseList, np.where(CaseList == dir))
@@ -115,4 +115,4 @@ def RenameBusCams():
         os.rename(PATH + '\\' + file, PATH + '\\' + '2_' + file)
 
 if __name__ == "__main__":
-    RenameBusCams()
+    getCaseNamebyFolderName()
