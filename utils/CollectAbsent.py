@@ -3,9 +3,9 @@ import os
 import csv
 
 def CollectAbsent():
-    dir_path = "C:\\Users\\jcy37\\Downloads"
+    dir_path = "C:\\Users\\정찬영\\Downloads"
     file_list = os.listdir(dir_path)
-    file_list = [file for file in file_list if file.startswith("hrm_4400_007_202201")]
+    file_list = [file for file in file_list if file.startswith("hrm_4400_007_20220211")]
     if len(file_list) < 20:
         print("file list error !!!!")
         exit(1)

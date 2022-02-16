@@ -4,8 +4,7 @@ import shutil
 
 def GetImgFromVideo():
     # 영상의 의미지를 연속적으로 캡쳐할 수 있게 하는 class
-    path_dir = 'D:\\H2BUS_3차년도_DB_정제중(20211018)\\20210205_수소버스_도로주행영상(전후좌우)\\1번_전방'
-    count = 0
+    path_dir = 'D:\\H2BUS_200916_Raw\\H2BUS_200916_Raw'
     file_list = os.listdir(path_dir)
     print(file_list)
     for file in file_list:
@@ -15,13 +14,13 @@ def GetImgFromVideo():
         while (vidcap.isOpened()):
             ret, image = vidcap.read()
             # 캡쳐된 이미지를 저장하는 함수
-            if (count % 30 == 0):
+            if (count % 25 == 0):
                 try:
-                    cv2.imwrite("D:\\20210205_1th_image\\" + file[:-4] + "%d.jpg" % count, image)
+                    cv2.imwrite("D:\\H2BUS_200916_Raw\\" + file[:-4] + "%d.jpg" % count, image)
                     print('Saved frame%d.jpg' % count)
                 except Exception as e:
                     print(e)
-                    print("D:\\20210205_1th_image\\" + file[:-4] + "%d.jpg")
+                    print("D:\\H2BUS_200916_Raw\\" + file[:-4] + "%d.jpg")
                     break
             count += 1
         vidcap.release()
@@ -58,7 +57,4 @@ def getimg30():
         cnt = cnt + 1
 
 if __name__ == "__main__":
-    PATH = "D:\\GT 생성 업무\\객체생성-검수\\검수완"
-    for path, dirs, files in os.walk(PATH):
-        if len(dirs) < 3 and len(files) < 2:
-            print(path, files, dirs)
+    GetImgFromVideo()
