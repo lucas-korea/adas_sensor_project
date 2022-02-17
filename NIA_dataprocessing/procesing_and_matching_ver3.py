@@ -173,9 +173,9 @@ def extract_PCDPNGpair_by_matchlist(match_list_path_list, camera_ts_path, camera
 
         for i in range(len(camera_match_file_list)):
             print("coping {} / {} folder \t {} / {} files...".format(match_list_i+1, len(match_list_path_list), i+1, len(camera_match_file_list)))
-            shutil.copy2(camera_ts_path + '\\' + lidar_match_file_list[i], pcd_move_dir + '\\' + '_'.join(lidar_match_file_list[i].replace('.pcd', '').split('_')[0:])
+            shutil.copy2(camera_ts_path + '\\' + lidar_match_file_list[i], pcd_move_dir + '\\' + '_'.join(lidar_match_file_list[i].replace('.pcd', '').split('_')[0:2])
                          + '_' + '{0:06d}'.format(i) + '.pcd')
-            shutil.copy2(camera_ts_filelist + '\\' + camera_match_file_list[i], png_move_dir + '\\' + '_'.join(camera_match_file_list[i].replace('.png', '').split('_')[1:])
+            shutil.copy2(camera_ts_filelist + '\\' + camera_match_file_list[i], png_move_dir + '\\' + '_'.join(camera_match_file_list[i].replace('.png', '').split('_')[1:3])
                         + '_' + '{0:06d}'.format(i)+ '.png')
         match_list_i = match_list_i + 1
 
