@@ -121,7 +121,7 @@ def cal_lidar_pos():
     x_ = (distance - beam_len) * np.cos(angle) * np.cos(Azimuth_sum) + beam_len * np.cos(Azimuth)
     y_ = ((distance - beam_len) * np.cos(angle) * np.sin(Azimuth_sum) + beam_len * np.sin(Azimuth)) * -1
     z_ = (distance - beam_len) * np.sin(angle)
-    return np.stack([x_, y_, z_, reflectivity], axis=-1).reshape(-1, 4)
+    return np.stack([x_, y_, z_, signal_photon], axis=-1).reshape(-1, 4)
 
 
 #bin style로 생성
@@ -222,7 +222,7 @@ def main():
                             tick_ct = header[2]
                         packets = packets + data
                         f.read(2)  # last enter
-                    if (frame_i % 10 == 0 or frame_i % 10 == 2 or frame_i % 10 == 4 or frame_i % 10 == 8 or 1):
+                    if (frame_i % 10 == 0 or frame_i % 10 == 2 or frame_i % 10 == 4 or frame_i % 10 == 8):
                         parsing_packet(packets)
                         point_cloud = cal_lidar_pos()  # global로 선언된 distance, reflectivity, signal_photon, Azimuth를 조합하여 point cloud data 생성
                         point_cloud = rm_zero_point(point_cloud)
@@ -249,10 +249,10 @@ def parsing_packet(data):
         for j in range(CHANNEL):
             Range_bytes = data[index: index + 4]
             ref_bytes = data[index + 4 : index + 6]
-            # signal_photon_bytes = data[index + 6: index + 8]
+            signal_photon_bytes = data[index + 6: index + 8]
             distance[i][j] = (Range_bytes[2] * 256 ** 2 + Range_bytes[1] * 256 + Range_bytes[0]) / 1000
             reflectivity[i][j] = ref_bytes[1] * 256 + ref_bytes[0]
-            # signal_photon[i][j] = (signal_photon_bytes[1] * 256 + signal_photon_bytes[0]) #/ 65535
+            signal_photon[i][j] = (signal_photon_bytes[1] * 256 + signal_photon_bytes[0]) #/ 65535
             index = index + 12
         block_stat = data[index: index + 4]
         index = index + 4
