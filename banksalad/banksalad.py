@@ -6,9 +6,12 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import pickle
 
-start = 0
-if start:
-    df = pd.read_excel('C:\\Users\\정찬영\\Downloads\\2021-02-09~2022-02-09.xlsx', sheet_name='가계부 내역')
+start = 1
+simple = 0
+if simple:
+ pass
+elif start:
+    df = pd.read_excel('C:\\Users\\정찬영\\PycharmProjects\\banksalad\\2021-02-22~2022-02-22.xlsx', sheet_name='가계부 내역')
     print(df)
     df['year'] = df['날짜'].dt.year
     df['month'] = df['날짜'].dt.month
@@ -61,7 +64,7 @@ for i in range(len(month_list)):
 plt.ylabel('consume')
 plt.xlabel('days')
 plt.xticks(np.arange(0, 32, 1))
-plt.yticks(np.arange(0, 2500000, 100000))
+plt.yticks(np.arange(0, 3000000, 100000))
 plt.grid()
 plt.legend()
 

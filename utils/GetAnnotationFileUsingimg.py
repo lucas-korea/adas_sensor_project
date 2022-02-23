@@ -1,15 +1,16 @@
 import os, shutil
+from PIL import Image
 
 def RemoveNoAnnotationImgfile():
     pass
 
-def dd():
-    file = 1
-    Image= 1
-    path = 1
-    if file.split('.')[1] == 'png':
-        im = Image.open(path + '\\' + file).convert('RGB')
-        im.save(path + '\\' + file.split('.')[0] + '.jpg', 'jpeg')
+def ConvertJpgPng():
+    frontPATH = 'D:\\NIA4차 대비 실도로 주행 sample PNGPCD 3case'
+    frontFileList = [file for file in os.listdir(frontPATH) if file.endswith('png')]
+    for file in frontFileList:
+        if file.split('.')[1] == 'png':
+            im = Image.open(frontPATH + '\\' + file).convert('RGB')
+            im.save(frontPATH + '\\' + file.split('.')[0] + '_2.jpg', 'jpeg')
 
 def GetAnnotationFile():
     PATH = 'F:\\heptacam 인식율평가 데이터셋'
@@ -73,4 +74,4 @@ def GetNmae():
     print(len(FileList))
 
 if __name__ == "__main__":
-    RemoveNoAnnotation()
+    ConvertJpgPng()
