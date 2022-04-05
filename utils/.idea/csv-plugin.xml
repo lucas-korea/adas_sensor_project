@@ -10,6 +10,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="\absent.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="\dummy3.csv">
           <value>
             <Attribute>
