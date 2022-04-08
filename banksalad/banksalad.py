@@ -6,12 +6,12 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import pickle
 
-start = 1
+start = 0
 simple = 0
 if simple:
  pass
 elif start:
-    df = pd.read_excel('C:\\Users\\정찬영\\PycharmProjects\\banksalad\\2021-02-22~2022-02-22.xlsx', sheet_name='가계부 내역')
+    df = pd.read_excel('2021-02-22~2022-02-22.xlsx', sheet_name='가계부 내역')
     print(df)
     df['year'] = df['날짜'].dt.year
     df['month'] = df['날짜'].dt.month
