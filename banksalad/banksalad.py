@@ -6,12 +6,12 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import pickle
 
-start = 0
+start = 1
 simple = 0
 if simple:
  pass
 elif start:
-    df = pd.read_excel('2021-02-22~2022-02-22.xlsx', sheet_name='가계부 내역')
+    df = pd.read_excel('2021-04-08~2022-04-08.xlsx', sheet_name='가계부 내역')
     print(df)
     df['year'] = df['날짜'].dt.year
     df['month'] = df['날짜'].dt.month
@@ -31,7 +31,9 @@ elif start:
         # TOTAL.append('Case-{}'.format(i))
 
     for i in range(len(df)):
-        if df.loc[i]['타입'] == '지출':
+        print(i, '/', len(df))
+        if df.loc[i]['타입'] == '지출' and df.loc[i]['내용'] != "(학)한동대학교(갈" and df.loc[i]['내용'] != "감사의기적교회"\
+                and df.loc[i]['대분류'] != "주거/통신" and df.loc[i]['대분류'] != "경조사" and df.loc[i]['대분류'] != "의료/건강":
             for j in range(df.loc[i].day-1, 31):
                 eval('Case_{}'.format(str(df.loc[i].year) + '_' + str(df.loc[i].month)))[j] -= df.loc[i]['금액']
 
@@ -48,11 +50,11 @@ else:
             globals()['Case_{}'.format(month_list[i])] = pickle.load(f)
             print('Case_{}'.format(month_list[i]))
 
-current_month = '2022_2'
-month_list.remove('2022_2')
-month_list.remove('2021_6')
-month_list.remove('2021_3')
-month_list.remove('2021_2')
+current_month = '2022_4'
+# month_list.remove('2022_2')
+# month_list.remove('2021_6')
+# # month_list.remove('2021_3')
+# # month_list.remove('2021_2')
 AVG = [0 for _ in range(31)]
 for i in range(len(month_list)):
     for j in range(31):
