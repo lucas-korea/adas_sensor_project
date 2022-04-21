@@ -6,7 +6,7 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import pickle
 
-start = 1
+start = 0
 simple = 0
 if simple:
  pass
