@@ -208,7 +208,7 @@ def main():
             crop_start_trash(f)
             while 1:
                 try:
-                    print(file_num,'/', len(lidar_file_list),'\t',pcd_num,"/",packets_size,"frame\t", format((packets_size - pcd_num)*(time.time() - time1)/60, '.2f'),"min left",
+                    print(file_num+1,'/', len(lidar_file_list),'\t',pcd_num,"/",packets_size,"frame\t", format((packets_size - pcd_num)*(time.time() - time1)/60, '.2f'),"min left",
                           "   now converting : ", file_name)
                     time1 = time.time()
                     pcd_num = pcd_num + 1
