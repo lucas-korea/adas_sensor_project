@@ -121,14 +121,16 @@ def cal_lidar_pos():
     x_ = (distance - beam_len) * np.cos(angle) * np.cos(Azimuth_sum) + beam_len * np.cos(Azimuth)
     y_ = ((distance - beam_len) * np.cos(angle) * np.sin(Azimuth_sum) + beam_len * np.sin(Azimuth)) * -1
     z_ = (distance - beam_len) * np.sin(angle)
+    y_ = -y_
+    z_ = -z_
     return np.stack([x_, y_, z_, reflectivity], axis=-1).reshape(-1, 4)
 
 
 #bin style로 생성
 def make_bin_PCDfile(point_cloud, lidar_list_dir_path, ymd, hms, frame_num, tick_ct):
-    with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_" + '{0:010d}'.format(int(tick_ct)) + ".pcd", 'w') as f:  # 생성될 pcd file 이름
+    with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_L.pcd", 'w') as f:  # 생성될 pcd file 이름
         f.write(HEADER.format(len(point_cloud), len(point_cloud))) # 미리 지정한 header를 pcd file 위에 write
-    with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_" + '{0:010d}'.format(int(tick_ct)) + ".pcd", 'ab') as f:
+    with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_L.pcd", 'ab') as f:
         point_cloud = np.round(point_cloud, 4)
         for i in range(len(point_cloud)):
             f.write(struct.pack("ffff", point_cloud[i][0], point_cloud[i][1], point_cloud[i][2], point_cloud[i][3]))
@@ -222,11 +224,11 @@ def main():
                             tick_ct = header[2]
                         packets = packets + data
                         f.read(2)  # last enter
-                    if (frame_i % 10 == 0 or frame_i % 10 == 2 or frame_i % 10 == 4 or frame_i % 10 == 8 or 1):
+                    if (frame_i % 10 == 0  or 1):
                         parsing_packet(packets)
                         point_cloud = cal_lidar_pos()  # global로 선언된 distance, reflectivity, signal_photon, Azimuth를 조합하여 point cloud data 생성
                         point_cloud = rm_zero_point(point_cloud)
-                        make_bin_PCDfile(point_cloud, lidar_list_dir_path, ymd, hms, frame_number, tick_ct)  # point cloud data를 pcd file로 변환
+                        make_bin_PCDfile(point_cloud, lidar_list_dir_path, ymd, hms, frame_i, tick_ct)  # point cloud data를 pcd file로 변환
                     frame_i = frame_i + 1
                     packets = []
                 except Exception as e:
