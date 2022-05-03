@@ -2,6 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/pcd_type_converter" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/velodyne_puck_viewer" vcs="Git" />
   </component>
 </project>
