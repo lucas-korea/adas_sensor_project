@@ -105,7 +105,7 @@ gc.collect()
 global MicroMode
 MicroMode = 0
 def key_press(event):
-    global PointCloud, ExtrinsicMat, MicroMode
+    global PointCloud, PointCloudOrigin, ExtrinsicMat, MicroMode
     new_xyz_lim = [plt.xlim(), plt.ylim()]
     new_ExtrinsicMat = np.array([[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]], dtype=np.float64)
     sys.stdout.flush()
@@ -183,13 +183,28 @@ def key_press(event):
     elif event.key == 'z':
         if MicroMode: MicroMode = 0
         else : MicroMode = 1
-
+    elif event.key == 'p': # check calibration using refresh
+        print(PointCloud[0])
+        print(PointCloudOrigin[0])
+        print(ExtrinsicMat @ PointCloudOrigin[0])
+        for q in range(len(PointCloud)):
+            PointCloud[q] = ExtrinsicMat @ PointCloudOrigin[q]
+    elif event.key == '[':
+        plt.cla()
+        ax.plot(RefPointCloud[:, 0], RefPointCloud[:, 1], RefPointCloud[:, 2], 'r.', alpha=0.4, markersize=1)
+        plt.draw()
+        plt.axis('off')
+        ax.set_xlim(new_xyz_lim[0][0], new_xyz_lim[0][1])
+        ax.set_ylim(new_xyz_lim[1][0], new_xyz_lim[1][1])
+        ax.set_zlim((new_xyz_lim[0][0] - new_xyz_lim[0][1]) / 2, (-new_xyz_lim[0][0] + new_xyz_lim[0][1]) / 2)
+        print("micromde", MicroMode)
+        print("result\n", ExtrinsicMat)
+        return
     plt.cla()
     ax.plot(PointCloud[:, 0], PointCloud[:, 1], PointCloud[:, 2], 'b.', alpha=0.4, markersize=1)
     ax.plot(RefPointCloud[:, 0], RefPointCloud[:, 1], RefPointCloud[:, 2], 'r.', alpha=0.4, markersize=1)
     plt.draw()
     plt.axis('off')
-    print(new_xyz_lim)
     ax.set_xlim(new_xyz_lim[0][0], new_xyz_lim[0][1])
     ax.set_ylim(new_xyz_lim[1][0], new_xyz_lim[1][1])
     ax.set_zlim((new_xyz_lim[0][0] - new_xyz_lim[0][1])/2 , (-new_xyz_lim[0][0] + new_xyz_lim[0][1])/2)
@@ -197,23 +212,25 @@ def key_press(event):
     print("micromde", MicroMode)
     print("result\n", ExtrinsicMat)
 global PointCloud
+global PointCloudOrigin
 global RefPointcloud
 
 if __name__ == "__main__":
-    RefPointCloud = binPCD2asciiPCD("C:\\Users\\정찬영\\PycharmProjects\\Radar_Lidar_calibration\\20220426_212356_000000_L.pcd")
+    RefPointCloud = binPCD2asciiPCD("C:\\Users\\정찬영\\PycharmProjects\\Radar_Lidar_calibration\\202254102723_bin.pcd")
     RefPointCloud.pop(-1)
     RefPointCloudNew = []
-    PointCloud = binPCD2asciiPCD("C:\\Users\\정찬영\\PycharmProjects\\Radar_Lidar_calibration\\20220426_212356_000000_R.pcd")
+    PointCloud = binPCD2asciiPCD("C:\\Users\\정찬영\\PycharmProjects\\Radar_Lidar_calibration\\202254103025_bin.pcd")
     PointCloud.pop(-1)
     PointCloudNew = []
     for i in range(len(PointCloud)):
         Point = np.float_(PointCloud[i].split(" "))
-        PointCloudNew.append([Point[0],Point[1], Point[2],Point[3]])
+        PointCloudNew.append([Point[0],Point[1], Point[2],1.0])
     for i in range(len(RefPointCloud)):
         Point = np.float_(RefPointCloud[i].split(" "))
-        RefPointCloudNew.append([Point[0],Point[1], Point[2],Point[3]])
+        RefPointCloudNew.append([Point[0],Point[1], Point[2],1.0])
 
     PointCloud = np.reshape(PointCloudNew, (-1,4))
+    PointCloudOrigin = PointCloud.copy()
     RefPointCloud = np.reshape(RefPointCloudNew, (-1, 4))
     ax.plot(PointCloud[:, 0], PointCloud[:, 1], PointCloud[:, 2], 'b.', alpha=0.4, markersize=1)
     ax.plot(RefPointCloud[:, 0], RefPointCloud[:, 1], RefPointCloud[:, 2], 'r.', alpha=0.4, markersize=1)
