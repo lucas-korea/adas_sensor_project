@@ -12,4 +12,7 @@ build/
 정제ver1/
 pcd_type_converter/
 pcd_type_converter\
+super_resolution/
+super_resolution\
+*.npy
 *.pdf
