@@ -85,11 +85,11 @@ z = np.zeros(BLOCKS * PACKETS_COUNT * CHANNEL)
 
 angle = np.zeros(128)
 Azimuth_intrinsic = np.zeros(128)
-beam_len = ouster_header.list["lidar_origin_to_beam_origin_mm"] * 0.001
+beam_len = ouster_header.beam_intrinsics["lidar_origin_to_beam_origin_mm"] * 0.001
 
 for header_i in range(128):
-    angle[header_i] = ouster_header.list["beam_altitude_angles"][header_i] * np.pi / 180
-    Azimuth_intrinsic[header_i] = ouster_header.list["beam_azimuth_angles"][header_i] * np.pi / 180
+    angle[header_i] = ouster_header.beam_intrinsics["beam_altitude_angles"][header_i] * np.pi / 180
+    Azimuth_intrinsic[header_i] = ouster_header.beam_intrinsics["beam_azimuth_angles"][header_i] * np.pi / 180
 
 
 #data encoder 값이 129.375도 부터 시작하는지 확인
@@ -116,13 +116,11 @@ def find_180deg(data):
         return False
 
 
-#xyz position을 계산하고 pcd file에 넣을 array로 합치기
+#xyz position을 계산하고 pcd file에 넣을 array로 합치기, +x 방향 차량 전진, +y는 좌측
 def cal_lidar_pos():
-    x_ = (distance - beam_len) * np.cos(angle) * np.cos(Azimuth_sum) + beam_len * np.cos(Azimuth)
-    y_ = ((distance - beam_len) * np.cos(angle) * np.sin(Azimuth_sum) + beam_len * np.sin(Azimuth)) * -1
+    x_ = - ((distance - beam_len) * np.cos(angle) * np.cos(Azimuth_sum) + beam_len * np.cos(Azimuth))
+    y_ = - ((distance - beam_len) * np.cos(angle) * np.sin(Azimuth_sum) + beam_len * np.sin(Azimuth))
     z_ = (distance - beam_len) * np.sin(angle)
-    # y_ = -y_
-    # z_ = -z_
     return np.stack([x_, y_, z_, reflectivity], axis=-1).reshape(-1, 4)
 
 
@@ -131,7 +129,7 @@ def make_bin_PCDfile(point_cloud, lidar_list_dir_path, ymd, hms, frame_num, tick
     with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_R.pcd", 'w') as f:  # 생성될 pcd file 이름
         f.write(HEADER.format(len(point_cloud), len(point_cloud))) # 미리 지정한 header를 pcd file 위에 write
     with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_R.pcd", 'ab') as f:
-        point_cloud = np.round(point_cloud, 4)
+        # point_cloud = np.round(point_cloud, 4)
         for i in range(len(point_cloud)):
             f.write(struct.pack("ffff", point_cloud[i][0], point_cloud[i][1], point_cloud[i][2], point_cloud[i][3]))
 
@@ -142,8 +140,8 @@ def make_ascii_PCDfile(point_cloud, lidar_list_dir_path, ymd, hms, frame_num, ti
         f.write(HEADER_ascii.format(len(point_cloud), len(point_cloud))) # 미리 지정한 header를 pcd file 위에 write
     with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_" + '{0:010d}'.format(int(tick_ct)) + ".pcd", 'a') as f:
         for i in range(len(point_cloud)):
-            for j in range(3):
-                point_cloud[i][j] = round(point_cloud[i][j], 4)
+            # for j in range(3):
+            #     point_cloud[i][j] = round(point_cloud[i][j], 4)
             f.write(str(point_cloud[i][0]) + ' ' + str(point_cloud[i][1]) + ' ' + str(point_cloud[i][2])
                     + ' ' + str(point_cloud[i][3]) + '\n')
 
@@ -250,7 +248,8 @@ def parsing_packet(data):
         index = index + 8
         for j in range(CHANNEL):
             Range_bytes = data[index: index + 4]
-            ref_bytes = data[index + 4 : index + 6]
+            ref_bytes = data[index + 4 : index + 5]
+            # unused = data[index + 4 : index + 6]
             # signal_photon_bytes = data[index + 6: index + 8]
             distance[i][j] = (Range_bytes[2] * 256 ** 2 + Range_bytes[1] * 256 + Range_bytes[0]) / 1000
             reflectivity[i][j] = ref_bytes[1] * 256 + ref_bytes[0]

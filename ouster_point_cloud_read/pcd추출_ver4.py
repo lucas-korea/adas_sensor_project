@@ -85,11 +85,11 @@ z = np.zeros(BLOCKS * PACKETS_COUNT * CHANNEL)
 
 angle = np.zeros(128)
 Azimuth_intrinsic = np.zeros(128)
-beam_len = ouster_header.beam_intrinsics["lidar_origin_to_beam_origin_mm"] * 0.001
+beam_len = ouster_header.list["lidar_origin_to_beam_origin_mm"] * 0.001
 
 for header_i in range(128):
-    angle[header_i] = ouster_header.beam_intrinsics["beam_altitude_angles"][header_i] * np.pi / 180
-    Azimuth_intrinsic[header_i] = ouster_header.beam_intrinsics["beam_azimuth_angles"][header_i] * np.pi / 180
+    angle[header_i] = ouster_header.list["beam_altitude_angles"][header_i] * np.pi / 180
+    Azimuth_intrinsic[header_i] = ouster_header.list["beam_azimuth_angles"][header_i] * np.pi / 180
 
 
 #data encoder 값이 129.375도 부터 시작하는지 확인
@@ -119,10 +119,8 @@ def find_180deg(data):
 #xyz position을 계산하고 pcd file에 넣을 array로 합치기
 def cal_lidar_pos():
     x_ = (distance - beam_len) * np.cos(angle) * np.cos(Azimuth_sum) + beam_len * np.cos(Azimuth)
-    y_ = ((distance - beam_len) * np.cos(angle) * np.sin(Azimuth_sum) + beam_len * np.sin(Azimuth)) * -1
+    y_ = (distance - beam_len) * np.cos(angle) * np.sin(Azimuth_sum) + beam_len * np.sin(Azimuth)
     z_ = (distance - beam_len) * np.sin(angle)
-    # y_ = -y_
-    # z_ = -z_
     return np.stack([x_, y_, z_, reflectivity], axis=-1).reshape(-1, 4)
 
 
