@@ -216,10 +216,10 @@ global PointCloudOrigin
 global RefPointcloud
 
 if __name__ == "__main__":
-    RefPointCloud = binPCD2asciiPCD("C:\\Users\\정찬영\\PycharmProjects\\Radar_Lidar_calibration\\202254102723_bin.pcd")
+    RefPointCloud = binPCD2asciiPCD("F:\\20220727calibration\\lidar-lidar calibraion\\20220727_141255_000000_3917691_L_under.pcd")
     RefPointCloud.pop(-1)
     RefPointCloudNew = []
-    PointCloud = binPCD2asciiPCD("C:\\Users\\정찬영\\PycharmProjects\\Radar_Lidar_calibration\\202254103025_bin.pcd")
+    PointCloud = binPCD2asciiPCD("F:\\20220727calibration\\lidar-lidar calibraion\\20220727_141255_000000_3917721_H_upper.pcd")
     PointCloud.pop(-1)
     PointCloudNew = []
     for i in range(len(PointCloud)):

@@ -79,14 +79,16 @@ reflectivity = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
 signal_photon = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
 timestamp = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
 
-x = np.zeros(BLOCKS * PACKETS_COUNT * CHANNEL)
-y = np.zeros(BLOCKS * PACKETS_COUNT * CHANNEL)
-z = np.zeros(BLOCKS * PACKETS_COUNT * CHANNEL)
+# x = np.zeros(BLOCKS * PACKETS_COUNT * CHANNEL)
+# y = np.zeros(BLOCKS * PACKETS_COUNT * CHANNEL)
+# z = np.zeros(BLOCKS * PACKETS_COUNT * CHANNEL)
 
 angle = np.zeros(128)
 Azimuth_intrinsic = np.zeros(128)
 beam_len = ouster_header.beam_intrinsics["lidar_origin_to_beam_origin_mm"] * 0.001
 
+HIGH = 0
+LOW = 0
 for header_i in range(128):
     angle[header_i] = ouster_header.beam_intrinsics["beam_altitude_angles"][header_i] * np.pi / 180
     Azimuth_intrinsic[header_i] = ouster_header.beam_intrinsics["beam_azimuth_angles"][header_i] * np.pi / 180
@@ -123,15 +125,33 @@ def cal_lidar_pos():
     z_ = (distance - beam_len) * np.sin(angle)
     return np.stack([x_, y_, z_, reflectivity], axis=-1).reshape(-1, 4)
 
+def cal_lidar_pos_32ch():
+    angle32 = angle[0:128:4]
+    Azimuth_sum32 = Azimuth_sum[:, 0:128:4]
+    Azimuth32 = Azimuth[:, 0:128:4]
+    reflectivity32 = reflectivity[:, 0::4]
+    distance32 = distance[:, 0:128:4]
+    x_ = - ((distance32 - beam_len) * np.cos(angle32) * np.cos(Azimuth_sum32) + beam_len * np.cos(Azimuth32))
+    y_ = - ((distance32 - beam_len) * np.cos(angle32) * np.sin(Azimuth_sum32) + beam_len * np.sin(Azimuth32))
+    z_ = (distance32 - beam_len) * np.sin(angle32)
+    return np.stack([x_, y_, z_, reflectivity32], axis=-1).reshape(-1, 4)
 
 #bin style로 생성
 def make_bin_PCDfile(point_cloud, lidar_list_dir_path, ymd, hms, frame_num, tick_ct):
-    with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_R.pcd", 'w') as f:  # 생성될 pcd file 이름
-        f.write(HEADER.format(len(point_cloud), len(point_cloud))) # 미리 지정한 header를 pcd file 위에 write
-    with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_R.pcd", 'ab') as f:
-        # point_cloud = np.round(point_cloud, 4)
-        for i in range(len(point_cloud)):
-            f.write(struct.pack("ffff", point_cloud[i][0], point_cloud[i][1], point_cloud[i][2], point_cloud[i][3]))
+    if HIGH:
+        with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_" + '{0:06d}'.format(int(tick_ct)) + "_H_upper.pcd", 'w') as f:  # 생성될 pcd file 이름
+            f.write(HEADER.format(len(point_cloud), len(point_cloud))) # 미리 지정한 header를 pcd file 위에 write
+        with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_" + '{0:06d}'.format(int(tick_ct)) + "_H_upper.pcd", 'ab') as f:
+            # point_cloud = np.round(point_cloud, 4)
+            for i in range(len(point_cloud)):
+                f.write(struct.pack("ffff", point_cloud[i][0], point_cloud[i][1], point_cloud[i][2], point_cloud[i][3]))
+    elif LOW:
+        with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_" + '{0:06d}'.format(int(tick_ct)) + "_L_under.pcd", 'w') as f:  # 생성될 pcd file 이름
+            f.write(HEADER.format(len(point_cloud), len(point_cloud))) # 미리 지정한 header를 pcd file 위에 write
+        with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_" + '{0:06d}'.format(int(tick_ct)) + "_L_under.pcd", 'ab') as f:
+            # point_cloud = np.round(point_cloud, 4)
+            for i in range(len(point_cloud)):
+                f.write(struct.pack("ffff", point_cloud[i][0], point_cloud[i][1], point_cloud[i][2], point_cloud[i][3]))
 
 
 #ascii style로 생성
@@ -175,7 +195,7 @@ def crop_start_trash(f):
     while 1:
         try:
             f.read(2)  # 처음에 붙은 0x00 0x00은 없애는 작업
-            f.read(48)  # katech header
+            f.read(50)  # katech header
             if find_start(list(f.read(24896))):
                 f.read(2)  # last enter
                 break
@@ -187,6 +207,7 @@ def crop_start_trash(f):
 
 
 def main():
+    global HIGH, LOW
     files, lidar_list_dir_path = select_lidar_list()
     print(lidar_list_dir_path, files)
     with open(list(files)[0], 'r') as lidar_f:
@@ -197,6 +218,15 @@ def main():
         packets = []
         file_name = file_name.replace("\n", "")
         print("now converting : ", file_name)
+        if file_name.split('\\')[-1][0] == 'H':
+            HIGH = 1
+            LOW = 0
+        elif file_name.split('\\')[-1][0] == 'L':
+            HIGH = 0
+            LOW = 1
+        else :
+            print("check file name, weather first character is \'H\' or \'L\'")
+            exit(1)
         packets_size = os.path.getsize(file_name) / 24948 / 64
         pcd_num = 0
         frame_number = -1
@@ -213,8 +243,8 @@ def main():
                     time1 = time.time()
                     pcd_num = pcd_num + 1
                     for i in range(64):
-                        f.read(2)  # 처음에 붙은 0x00 0x00은 없애는 작업
-                        header = f.read(48)  # katech header
+                        f.read(2) # 처음에 붙은 0x00 0x00은 없애는 작업
+                        header = f.read(50)  # katech header
                         data = list(f.read(24896))
                         if find_180deg(data):
                             header = header.decode().replace(" ", "").split("\t")
@@ -222,9 +252,11 @@ def main():
                             tick_ct = header[2]
                         packets = packets + data
                         f.read(2)  # last enter
-                    if (frame_i % 10 == 0  or 1):
+                    if (frame_i % 10 == 0 ):
                         parsing_packet(packets)
-                        point_cloud = cal_lidar_pos()  # global로 선언된 distance, reflectivity, signal_photon, Azimuth를 조합하여 point cloud data 생성
+
+                        if HIGH : point_cloud = cal_lidar_pos()  # global로 선언된 distance, reflectivity, signal_photon, Azimuth를 조합하여 point cloud data 생성
+                        elif LOW : point_cloud = cal_lidar_pos()
                         # point_cloud = rm_zero_point(point_cloud)
                         make_bin_PCDfile(point_cloud, lidar_list_dir_path, ymd, hms, frame_i, tick_ct)  # point cloud data를 pcd file로 변환
                     frame_i = frame_i + 1
@@ -252,7 +284,7 @@ def parsing_packet(data):
             # unused = data[index + 4 : index + 6]
             # signal_photon_bytes = data[index + 6: index + 8]
             distance[i][j] = (Range_bytes[2] * 256 ** 2 + Range_bytes[1] * 256 + Range_bytes[0]) / 1000
-            reflectivity[i][j] = ref_bytes[1] * 256 + ref_bytes[0]
+            reflectivity[i][j] = ref_bytes[0]
             # signal_photon[i][j] = (signal_photon_bytes[1] * 256 + signal_photon_bytes[0]) #/ 65535
             index = index + 12
         block_stat = data[index: index + 4]

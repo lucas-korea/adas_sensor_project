@@ -33,4 +33,7 @@ def ChangeAxis(FilePath):
             f.write(struct.pack('ffff', onepoint[0], -onepoint[1], -onepoint[2], onepoint[3]))
 
 if __name__ == "__main__":
-    ChangeAxis("D:\\two Lidar calibration check\\New folder (3)\\20220421_171138\\20220421_171138\\20220421_171138_000000_0005408250.pcd")
+    path = "F:\\20220727calibration\\cam-lidar mating\\lidar_h"
+    files = os.listdir(path)
+    for file in files:
+        ChangeAxis(path + '\\' + file)

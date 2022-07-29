@@ -16,7 +16,7 @@ def createFolder(directory):
 def make_pcd_ts_listtxt(pcd_file_list):
     pcd_ts_list = [0 for i in range(len(pcd_file_list))]
     for i in range(len(pcd_file_list)):
-        pcd_ts_list[i] = int(pcd_file_list[i].split('_')[-1][:-4])  # pcd file 끝에 있는 tickcount 추출
+        pcd_ts_list[i] = int(pcd_file_list[i].split('_')[3])  # pcd file 끝에 있는 tickcount 추출
     pcd_ts_list.sort()
     for i in range(len(pcd_file_list)):
         pcd_ts_list[i] = str(pcd_ts_list[i]) + '\n'
@@ -57,9 +57,9 @@ def select_lidar_data_list_txtfile_and_make_lidarTimeStamp_txtfile():
         lidar_date_list = f.readlines()
     print(lidar_date_list)
     for i in range(len(lidar_date_list)):
-        lidar_date_list[i] = '_'.join(lidar_date_list[i].split('\\')[-1].split('_')[1:3])[:-5]
+        lidar_date_list[i] = '_'.join(lidar_date_list[i].split('\\')[-1].split('_')[2:])[:-5]
 
-    print(lidar_date_list)
+    print(lidar_date_list) # yyyymmdd_hhmmss
     for date_i in range(len(lidar_date_list)):
         pcd_file_list = [file for file in os.listdir(lidar_data_list_txtfile_path) if
                          (file.startswith(lidar_date_list[date_i]) and file.endswith('.pcd'))]
@@ -115,7 +115,7 @@ def make_match_list_txtfile(lidar_ts_filelist, lidar_ts_path, camera_ts_path):
             camera_ts_list = np.asarray(camera_ts_list, dtype=np.uint32)
             camera_fr_list = np.asarray(camera_fr_list, dtype=np.uint32)
         k, j, q, y = 0, 0, 0, 0
-        range_ = 17
+        range_ = 10
         lidar_matched_list = []
         camera_matched_tick_list = []
         camera_matched_fr_list = []
@@ -149,6 +149,7 @@ def make_match_list_txtfile(lidar_ts_filelist, lidar_ts_path, camera_ts_path):
 
 
 def extract_PCDPNGpair_by_matchlist(match_list_path_list, camera_ts_path, camera_ts_filelist, png_move_dir, pcd_move_dir):
+    print(match_list_path_list,'\n', camera_ts_path,'\n', camera_ts_filelist,'\n', png_move_dir,'\n', pcd_move_dir)
     match_list_i = 0
     for match_list in match_list_path_list:
         camera_match_frame = []
@@ -160,18 +161,18 @@ def extract_PCDPNGpair_by_matchlist(match_list_path_list, camera_ts_path, camera
             lidar_match_stamp.append(lines[i].split('\t')[2].replace('\n', ''))
 
         lidar_file_list = [file for file in os.listdir(camera_ts_path) if file.startswith('_'.join(match_list.split('\\')[-1].split('_')[0:2])) and file.endswith(".pcd")]
-        camera_file_list = [file for file in os.listdir(camera_ts_filelist) if file.startswith('2_' + '_'.join(match_list.split('\\')[-1].split('_')[0:2])) and file.endswith(".png")]
-        # print("camera_ts_path : ", camera_ts_path)
-        # print("camera_ts_filelist : ", camera_ts_filelist)
-        # print(lidar_file_list)
-        # print(camera_file_list)
+        camera_file_list = [file for file in os.listdir(camera_ts_filelist) if file.startswith('1_' + '_'.join(match_list.split('\\')[-1].split('_')[0:2])) and file.endswith(".jpg")]
+        print("camera_ts_path : ", camera_ts_path)
+        print("camera_ts_filelist : ", camera_ts_filelist)
+        # print("lidar_file_list : ", lidar_file_list)
+        # print("camera_file_list : ", camera_file_list)
         lidar_match_file_list = []
         camera_match_file_list = []
         for i in range(len(camera_match_frame)):
-            lidar_match_file_list.append([file for file in lidar_file_list if file.endswith(str(lidar_match_stamp[i]) + ".pcd")][-1])
+            lidar_match_file_list.append([file for file in lidar_file_list if file.split('_')[3]==str(lidar_match_stamp[i])][-1])
             # camera_match_file_list.append([file for file in camera_file_list if file.endswith('0' + str(camera_match_frame[i]) + ".png")][-1])
             camera_match_file_list.append([file for file in camera_file_list if (int(file.split('_')[-1].split('.')[0]) == int(camera_match_frame[i]))][-1])
-        print(camera_match_file_list)
+        print("camera_match_file_list", camera_match_file_list)
         for i in range(len(camera_match_file_list)):
             print("coping {} / {} folder \t {} / {} files...".format(match_list_i+1, len(match_list_path_list), i+1, len(camera_match_file_list)))
             shutil.copy2(camera_ts_path + '\\' + lidar_match_file_list[i], pcd_move_dir + '\\' + '_'.join(lidar_match_file_list[i].replace('.pcd', '').split('_')[0:2])
@@ -180,6 +181,28 @@ def extract_PCDPNGpair_by_matchlist(match_list_path_list, camera_ts_path, camera
                         + '_' + '{0:06d}'.format(i)+ '.png')
         match_list_i = match_list_i + 1
 
+def matching_HighLow(match_list_path_list, lidar_ts_path, pcd_move_dir):
+    range_ = 50
+    for match_list in match_list_path_list:
+        camera_match_frame = []
+        lidar_match_stamp = []
+        with open(match_list, 'r') as f:
+            lines = f.readlines()
+        for i in range(len(lines)):
+            lidar_match_stamp.append(lines[i].split('\t')[2].replace('\n', ''))
+        lidar_match_stamp_list = np.asarray(lidar_match_stamp, dtype == np.uint32)
+        LowLidarList = [file for file in os.listdir(lidar_ts_path)
+                        if file.startswith('_'.join(match_list.split('\\')[-1].split('_')[0:2]))
+                        and file.endswith("L_under.pcd")]
+        lidar_match_stamp_list = np.asarray(lidar_match_stamp, dtype == np.uint32)
+        LowLidar_stamp_List = np.asarray(LowLidarList.split('_')[3], dtype=np.uint32)
+
+        for i in range(len(LowLidarList)):
+            mask_arr1 = lidar_match_stamp_list[:] > LowLidar_stamp_List[i] - range_
+            mask_arr2 = lidar_match_stamp_list[:] <= LowLidar_stamp_List[i] + range_
+            mask_all = np.logical_and(mask_arr1, mask_arr2)
+            if len(lidar_match_stamp_list[mask_all]):
+                shutil.copy2(lidar_ts_path + '\\' + LowLidarList[i], pcd_move_dir + '\\' + + LowLidarList[i])
 
 def main():
     print("select_lidar_data_list_txtfile_and_make_lidarTimeStamp_txtfile.......")
