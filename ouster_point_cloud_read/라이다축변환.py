@@ -30,10 +30,13 @@ def ChangeAxis(FilePath):
         f.write(header)
         for i in range(int(len(point_cloud)/16)):
             onepoint = struct.unpack('ffff', point_cloud[0 + i * 16:16 + i * 16])
-            f.write(struct.pack('ffff', onepoint[0], -onepoint[1], -onepoint[2], onepoint[3]))
+            f.write(struct.pack('ffff', onepoint[0], -onepoint[1], onepoint[2], onepoint[3]))
 
 if __name__ == "__main__":
-    path = "F:\\20220727calibration\\cam-lidar mating\\lidar_h"
+    path = "I:\\20220727calibration\\cam-lidar mating\\lidar_h(좌표축 에러)"
     files = os.listdir(path)
+    cnt = 0
     for file in files:
         ChangeAxis(path + '\\' + file)
+        print(cnt, '/', len(files))
+        cnt += 1
