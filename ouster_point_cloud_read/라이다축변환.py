@@ -1,5 +1,8 @@
 import os
 import struct
+from tkinter import filedialog
+from tkinter import messagebox
+
 # def main():
 #     PATH = "D:\\NIA4차 대비 실도로 주행 sample PNGPCD 3case"
 #     PCDlist = [file for file in os.listdir(PATH) if os.path.splitext(file)[1] == '.pcd']
@@ -30,13 +33,25 @@ def ChangeAxis(FilePath):
         f.write(header)
         for i in range(int(len(point_cloud)/16)):
             onepoint = struct.unpack('ffff', point_cloud[0 + i * 16:16 + i * 16])
-            f.write(struct.pack('ffff', onepoint[0], -onepoint[1], onepoint[2], onepoint[3]))
+            f.write(struct.pack('ffff', -onepoint[0], onepoint[1], onepoint[2], onepoint[3]))
+
+def select_files(str_):
+    files = filedialog.askopenfilenames(initialdir=os.getcwd(),
+                                        title=str_,
+                                        filetypes=( ("*.pcd", "*pcd"), ("*.txt", "*txt")))
+    if files == '':
+        print("파일을 추가 하세요")
+        messagebox.showwarning("경고", "파일을 추가 하세요")  # 파일 선택 안했을 때 메세지 출력
+        exit(1)
+    return files
 
 if __name__ == "__main__":
-    path = "I:\\20220727calibration\\cam-lidar mating\\lidar_h(좌표축 에러)"
-    files = os.listdir(path)
+    files = select_files("파일 선택하세요")
+    print(files)
+    # path = "I:\\20220727calibration\\cam-lidar mating\\lidar_h(좌표축 에러)"
+    # files = os.listdir(path)
     cnt = 0
     for file in files:
-        ChangeAxis(path + '\\' + file)
+        ChangeAxis(file)
         print(cnt, '/', len(files))
         cnt += 1
