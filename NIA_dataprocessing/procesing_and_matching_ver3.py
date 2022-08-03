@@ -186,15 +186,15 @@ def extract_PCDPNGpair_by_matchlist(match_list_path_list, camera_ts_path, camera
         print("camera_match_file_list", camera_match_file_list)
         for i in range(len(camera_match_file_list)):
             print("coping {} / {} folder \t {} / {} files...".format(match_list_i+1, len(match_list_path_list), i+1, len(camera_match_file_list)))
-            shutil.copy2(camera_ts_path + '\\' + lidar_match_file_list[i], pcd_move_dir + '\\' + '_'.join(lidar_match_file_list[i].replace('.pcd', '').split('_')[0:2])
-                         + '_' + '{0:04d}'.format(i) + '.pcd')
-            shutil.copy2(camera_ts_filelist + '\\' + camera_match_file_list[i], png_move_dir + '\\' + '_'.join(camera_match_file_list[i].replace('.png', '').split('_')[1:3])
+            shutil.copy2(camera_ts_path + '\\' + lidar_match_file_list[i], pcd_move_dir + '\\' + '_'.join(lidar_match_file_list[i].replace('.pcd', '').split('_')[0:2])[2:]
+                         + '_' + '{0:04d}'.format(i) + '_H'+ '.pcd')
+            shutil.copy2(camera_ts_filelist + '\\' + camera_match_file_list[i], png_move_dir + '\\' + '_'.join(camera_match_file_list[i].replace('.png', '').split('_')[1:3])[2:]
                         + '_' + '{0:04d}'.format(i) + '_F' + '.png')
-            shutil.copy2(camera_ts_filelist + '\\' + '2' + camera_match_file_list[i][1:], png_move_dir + '\\' + '_'.join(camera_match_file_list[i].replace('.png', '').split('_')[1:3])
+            shutil.copy2(camera_ts_filelist + '\\' + '2' + camera_match_file_list[i][1:], png_move_dir + '\\' + '_'.join(camera_match_file_list[i].replace('.png', '').split('_')[1:3])[2:]
                         + '_' + '{0:04d}'.format(i) + '_R' + '.png')
-            shutil.copy2(camera_ts_filelist + '\\' + '3' + camera_match_file_list[i][1:], png_move_dir + '\\' + '_'.join(camera_match_file_list[i].replace('.png', '').split('_')[1:3])
+            shutil.copy2(camera_ts_filelist + '\\' + '3' + camera_match_file_list[i][1:], png_move_dir + '\\' + '_'.join(camera_match_file_list[i].replace('.png', '').split('_')[1:3])[2:]
                         + '_' + '{0:04d}'.format(i) + '_B' + '.png')
-            shutil.copy2(camera_ts_filelist + '\\' + '4' + camera_match_file_list[i][1:], png_move_dir + '\\' + '_'.join(camera_match_file_list[i].replace('.png', '').split('_')[1:3])
+            shutil.copy2(camera_ts_filelist + '\\' + '4' + camera_match_file_list[i][1:], png_move_dir + '\\' + '_'.join(camera_match_file_list[i].replace('.png', '').split('_')[1:3])[2:]
                         + '_' + '{0:04d}'.format(i) + '_L' + '.png')
         match_list_i = match_list_i + 1
 
@@ -207,19 +207,27 @@ def matching_HighLow(match_list_path_list, lidar_ts_path, pcd_move_dir):
             lines = f.readlines()
         for i in range(len(lines)):
             lidar_match_stamp.append(lines[i].split('\t')[2].replace('\n', ''))
-        lidar_match_stamp_list = np.asarray(lidar_match_stamp, dtype=np.uint32)
         LowLidarList = [file for file in os.listdir(lidar_ts_path)
                         if file.startswith('_'.join(match_list.split('\\')[-1].split('_')[0:2]))
                         and file.endswith("L_under.pcd")]
         lidar_match_stamp_list = np.asarray(lidar_match_stamp, dtype=np.uint32)
-        LowLidar_stamp_List = np.asarray(LowLidarList.split('_')[3], dtype=np.uint32)
-
+        LowLidar_stamp_List = []
         for i in range(len(LowLidarList)):
+            LowLidar_stamp_List.append(int(LowLidarList[i].split('_')[3]))
+        cnt = 0
+        for i in range(len(LowLidarList)):
+            print(i, '/' , len(LowLidarList))
             mask_arr1 = lidar_match_stamp_list[:] > LowLidar_stamp_List[i] - range_
             mask_arr2 = lidar_match_stamp_list[:] <= LowLidar_stamp_List[i] + range_
             mask_all = np.logical_and(mask_arr1, mask_arr2)
             if len(lidar_match_stamp_list[mask_all]):
-                shutil.copy2(lidar_ts_path + '\\' + LowLidarList[i], pcd_move_dir + '\\' + + LowLidarList[i])
+                shutil.copy2(lidar_ts_path + '\\' + LowLidarList[i],
+                             pcd_move_dir + '\\' + '_'.join(LowLidarList[i].split('_')[:2])[2:]
+                             + '_'  + '{0:04d}'.format(cnt) + '_L'+ '.pcd')
+                # print('_'.join(LowLidarList[i].split('_')[:2])[2:])
+                cnt += 1
+            else:
+                print("no matched!!")
 
 def main():
     print("select_lidar_data_list_txtfile_and_make_lidarTimeStamp_txtfile.......")
@@ -232,6 +240,6 @@ def main():
     match_list_path_list = make_match_list_txtfile(lidar_ts_filelist, lidar_ts_path, camera_ts_path)
     print("extract_PCDPNGpair_by_matchlist.......")
     extract_PCDPNGpair_by_matchlist(match_list_path_list, lidar_ts_path, camera_ts_path, png_move_dir, pcd_move_dir)
-
+    matching_HighLow(match_list_path_list, lidar_ts_path, pcd_move_dir)
 if __name__ == "__main__":
     main()

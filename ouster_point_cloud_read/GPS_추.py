@@ -3,11 +3,11 @@ import pandas as pd
 import csv
 
 def function():
-    match = open("I:\\20220726test\\20220726_134553\\PCD\\20220726_134553_lidar_TimeStamp.txt")
+    match = open("I:\\20220802 1cycle sample\\20220802_110747\\20220802_110747\\PCD\\20220802_110747_match_list.txt")
     lidar_tick = []
     lines = match.readlines()
     for i in range(len(lines)):
-        lidar_tick.append(lines[i].replace('\n', ''))
+        lidar_tick.append(lines[i].split('\t')[-1].replace('\n', ''))
     roll = -1
     pitch = -1
     time = -1
@@ -16,11 +16,13 @@ def function():
     speed = -1
     heading = -1
     altitude = -1
-    gps_path = "D:\\2022NIA2차 라이다 super resolution, denosing\\브레인컨테이너 샘플 데이터\\220726\\220726_134553_K\\gps"
-    with open("I:\\20220726test\\20220726_134553\\GPS_20220726_134553.bin") as f:
+    gps_path = "I:\\20220802 1cycle sample\\220802\\220802_110747_K\\gps"
+    gps_bin_path = "I:\\20220802 1cycle sample\\20220802_110747\\20220802_110747\\GPS_20220802_110747.bin"
+    with open(gps_bin_path) as f:
         cnt = 0
         for tick in lidar_tick:
-            print(tick)
+            print(cnt ,'/', len(lidar_tick))
+            # print(tick)
             tick = int(tick)
             line = f.readline().replace(' ', '')
             line = line.replace('\n', '').split('\t')[2:5]
@@ -35,8 +37,10 @@ def function():
                 pitch = line[2].split(',')[6]
                 f.readline()
                 GPRMC = f.readline()
-                time = GPRMC.split(',')[1]
-                print(time)
+                time = float(GPRMC.split(',')[1])
+                time = time + 90000 # 한국시간 +9시간
+                if time >240000: time -= 240000 # 24시간 이상은 없으므로 초과하면 24시간 빼기
+                # print(time)
                 latitude = GPRMC.split(',')[3]
                 longitude = GPRMC.split(',')[5]
                 speed = float(GPRMC.split(',')[7]) * 1.852 # knote to Km/h
@@ -47,7 +51,7 @@ def function():
                 GPGGA = f.readline()
                 altitude = GPGGA.split(',')[9]
                 yaw = heading
-                CSV = open(gps_path + '\\GPS_' + '220726_134553' + '_' + '{0:04d}'.format(cnt) + '.csv', 'w',
+                CSV = open(gps_path + '\\GPS_' + gps_bin_path.split('\\')[-2][2:] + '_' + '{0:04d}'.format(cnt) + '.csv', 'w',
                            encoding='utf-8', newline='')
                 wr = csv.writer(CSV)
                 wr.writerow([time, latitude, longitude, altitude, speed, heading, roll, pitch,yaw])
