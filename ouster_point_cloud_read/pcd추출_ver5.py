@@ -8,7 +8,7 @@ import time
 
 HEADER = '''# .PCD v0.7 - Point Cloud Data file format
 VERSION 0.7
-FIELDS x y z intensity
+FIELDS x y z reflectivity
 SIZE 4 4 4 4
 TYPE F F F F
 COUNT 1 1 1 1
@@ -74,6 +74,7 @@ START_PACKET = 700
 
 Azimuth = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
 Azimuth_sum = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
+Azimuth_sum_low = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
 distance = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))  # 128 = channel, 16 * 128 = block * packets
 reflectivity = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
 signal_photon = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
@@ -85,13 +86,17 @@ timestamp = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
 
 angle = np.zeros(128)
 Azimuth_intrinsic = np.zeros(128)
+angle_low = np.zeros(128)
+Azimuth_intrinsic_low = np.zeros(128)
 beam_len = ouster_header.beam_intrinsics["lidar_origin_to_beam_origin_mm"] * 0.001
-
+beam_len_low = ouster_header.beam_intrinsics2["lidar_origin_to_beam_origin_mm"] * 0.001
 HIGH = 0
 LOW = 0
 for header_i in range(128):
     angle[header_i] = ouster_header.beam_intrinsics["beam_altitude_angles"][header_i] * np.pi / 180
     Azimuth_intrinsic[header_i] = ouster_header.beam_intrinsics["beam_azimuth_angles"][header_i] * np.pi / 180
+    angle_low[header_i] = ouster_header.beam_intrinsics2["beam_altitude_angles"][header_i] * np.pi / 180
+    Azimuth_intrinsic_low[header_i] = ouster_header.beam_intrinsics2["beam_azimuth_angles"][header_i] * np.pi / 180
 
 
 #data encoder 값이 129.375도 부터 시작하는지 확인
@@ -127,8 +132,8 @@ def cal_lidar_pos():
     return np.stack([-x_, y_, z_, reflectivity], axis=-1).reshape(-1, 4)
 
 def cal_lidar_pos_32ch():
-    angle32 = angle[0:128:4]
-    Azimuth_sum32 = Azimuth_sum[:, 0:128:4]
+    angle32 = angle_low[0:128:4]
+    Azimuth_sum32 = Azimuth_sum_low[:, 0:128:4]
     Azimuth32 = Azimuth[:, 0:128:4]
     reflectivity32 = reflectivity[:, 0::4]
     distance32 = distance[:, 0:128:4]
@@ -278,6 +283,7 @@ def parsing_packet(data):
         Encoder = (Encoder[3] * 256 ** 3 + Encoder[2] * 256 ** 2 + Encoder[1] * 256 + Encoder[0])
         Azimuth[i][:] = Encoder / TICKS / 1024 * 2 * np.pi
         Azimuth_sum[i][:] = Azimuth[i][:] + Azimuth_intrinsic
+        Azimuth_sum_low[i][:] = Azimuth[i][:] + Azimuth_intrinsic_low
         index = index + 8
         for j in range(CHANNEL):
             Range_bytes = data[index: index + 4]
