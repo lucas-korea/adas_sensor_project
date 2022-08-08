@@ -3,7 +3,7 @@ import pandas as pd
 import csv
 
 def function():
-    match = open("I:\\20220802 1cycle sample\\20220802_110747\\20220802_110747\\PCD\\20220802_110747_match_list.txt")
+    match = open("F:\\20220802 1cycle sample\\20220802_110747\\20220802_110747\\PCD\\20220802_110747_match_list.txt")
     lidar_tick = []
     lines = match.readlines()
     for i in range(len(lines)):
@@ -16,8 +16,8 @@ def function():
     speed = -1
     heading = -1
     altitude = -1
-    gps_path = "I:\\20220802 1cycle sample\\220802\\220802_110747_K\\gps"
-    gps_bin_path = "I:\\20220802 1cycle sample\\20220802_110747\\20220802_110747\\GPS_20220802_110747.bin"
+    gps_path = "F:\\20220802 1cycle sample\\220802\\220802_110747_K\\gps"
+    gps_bin_path = "F:\\20220802 1cycle sample\\20220802_110747\\20220802_110747\\GPS_20220802_110747.bin"
     with open(gps_bin_path) as f:
         cnt = 0
         for tick in lidar_tick:
