@@ -4,6 +4,17 @@ from tkinter import filedialog
 from tkinter import messagebox
 import shutil
 
+
+def findNearNum(exList, values):
+    answer = [0 for _ in range(2)]  # answer 리스트 0으로 초기화
+    minValue = min(exList, key=lambda x: abs(x - values))
+    exList = exList.tolist()
+    minIndex = exList.index(minValue)
+    answer[0] = minIndex
+    answer[1] = minValue
+    return answer
+
+
 def createFolder(directory):
     try:
         if not os.path.exists(directory):
@@ -114,8 +125,7 @@ def make_match_list_txtfile(lidar_ts_filelist, lidar_ts_path, camera_ts_path):
                 camera_fr_list[k] = camera_ts_frame_list[k].split('_')[1]
             camera_ts_list = np.asarray(camera_ts_list, dtype=np.uint32)
             camera_fr_list = np.asarray(camera_fr_list, dtype=np.uint32)
-        k, j, q, y = 0, 0, 0, 0
-        range_ = 30
+        range_ = 40
         lidar_matched_list = []
         camera_matched_tick_list = []
         camera_matched_fr_list = []
@@ -125,20 +135,21 @@ def make_match_list_txtfile(lidar_ts_filelist, lidar_ts_path, camera_ts_path):
             mask_all = np.logical_and(mask_arr1, mask_arr2)
             tick = camera_ts_list[mask_all]
             frame = camera_fr_list[mask_all]
+            tick = np.int64(tick)
             if len(tick) == 0:
-                q = q + 1
+                pass
             elif len(tick) == 1:
                 lidar_matched_list.append(lidar_ts_list[i])
-                camera_matched_tick_list.append(tick[0])
-                camera_matched_fr_list.append(frame[0])
-                k = k + 1
+                camera_matched_tick_list.append(tick[findNearNum(tick, lidar_ts_list[i])[0]])
+                camera_matched_fr_list.append(frame[findNearNum(tick, lidar_ts_list[i])[0]])
             elif len(tick) == 2:
                 lidar_matched_list.append(lidar_ts_list[i])
-                camera_matched_tick_list.append(tick[0])
-                camera_matched_fr_list.append(frame[0])
-                j = j + 1
+                camera_matched_tick_list.append(tick[findNearNum(tick, lidar_ts_list[i])[0]])
+                camera_matched_fr_list.append(frame[findNearNum(tick, lidar_ts_list[i])[0]])
             else:
-                y = y + 1
+                lidar_matched_list.append(lidar_ts_list[i])
+                camera_matched_tick_list.append(tick[findNearNum(tick, lidar_ts_list[i])[0]])
+                camera_matched_fr_list.append(frame[findNearNum(tick, lidar_ts_list[i])[0]])
         with open(lidar_ts_path + '\\' + '_'.join(lidar_ts_filelist[file_i].split('_')[0:2]) + "_match_list.txt", 'w') as f:
             print(lidar_ts_path + '\\' + '_'.join(lidar_ts_filelist[file_i].split('_')[0:2]) + "_match_list.txt\t{}th file maded!!".format(file_i+1))
             for i in range(len(lidar_matched_list)):
@@ -199,7 +210,7 @@ def extract_PCDPNGpair_by_matchlist(match_list_path_list, camera_ts_path, camera
         match_list_i = match_list_i + 1
 
 def matching_HighLow(match_list_path_list, lidar_ts_path, pcd_move_dir):
-    range_ = 50
+    range_ = 49
     for match_list in match_list_path_list:
         camera_match_frame = []
         lidar_match_stamp = []
@@ -211,9 +222,12 @@ def matching_HighLow(match_list_path_list, lidar_ts_path, pcd_move_dir):
                         if file.startswith('_'.join(match_list.split('\\')[-1].split('_')[0:2]))
                         and file.endswith("L_under.pcd")]
         lidar_match_stamp_list = np.asarray(lidar_match_stamp, dtype=np.uint32)
+        lidar_match_stamp_list.sort()
+        LowLidarList.sort()
         LowLidar_stamp_List = []
         for i in range(len(LowLidarList)):
             LowLidar_stamp_List.append(int(LowLidarList[i].split('_')[3]))
+        print("LowLidar_stamp_List", LowLidar_stamp_List)
         cnt = 0
         for i in range(len(LowLidarList)):
             print(i, '/' , len(LowLidarList))
@@ -221,6 +235,8 @@ def matching_HighLow(match_list_path_list, lidar_ts_path, pcd_move_dir):
             mask_arr2 = lidar_match_stamp_list[:] <= LowLidar_stamp_List[i] + range_
             mask_all = np.logical_and(mask_arr1, mask_arr2)
             if len(lidar_match_stamp_list[mask_all]):
+                print(LowLidarList[i])
+                print(LowLidar_stamp_List[i])
                 shutil.copy2(lidar_ts_path + '\\' + LowLidarList[i],
                              pcd_move_dir + '\\' + '_'.join(LowLidarList[i].split('_')[:2])[2:]
                              + '_'  + '{0:04d}'.format(cnt) + '_L'+ '.pcd')

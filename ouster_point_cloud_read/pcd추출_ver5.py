@@ -257,7 +257,7 @@ def main():
                         parsing_packet(packets)
 
                         if HIGH : point_cloud = cal_lidar_pos()  # global로 선언된 distance, reflectivity, signal_photon, Azimuth를 조합하여 point cloud data 생성
-                        elif LOW : point_cloud = cal_lidar_pos()
+                        elif LOW : point_cloud = cal_lidar_pos_32ch()
                         # point_cloud = rm_zero_point(point_cloud)
                         make_bin_PCDfile(point_cloud, lidar_list_dir_path, ymd, hms, frame_i, tick_ct)  # point cloud data를 pcd file로 변환
                     frame_i = frame_i + 1
