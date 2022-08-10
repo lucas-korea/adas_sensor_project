@@ -210,7 +210,7 @@ def extract_PCDPNGpair_by_matchlist(match_list_path_list, camera_ts_path, camera
         match_list_i = match_list_i + 1
 
 def matching_HighLow(match_list_path_list, lidar_ts_path, pcd_move_dir):
-    range_ = 49
+    range_ = 50
     for match_list in match_list_path_list:
         camera_match_frame = []
         lidar_match_stamp = []
@@ -235,8 +235,6 @@ def matching_HighLow(match_list_path_list, lidar_ts_path, pcd_move_dir):
             mask_arr2 = lidar_match_stamp_list[:] <= LowLidar_stamp_List[i] + range_
             mask_all = np.logical_and(mask_arr1, mask_arr2)
             if len(lidar_match_stamp_list[mask_all]):
-                print(LowLidarList[i])
-                print(LowLidar_stamp_List[i])
                 shutil.copy2(lidar_ts_path + '\\' + LowLidarList[i],
                              pcd_move_dir + '\\' + '_'.join(LowLidarList[i].split('_')[:2])[2:]
                              + '_'  + '{0:04d}'.format(cnt) + '_L'+ '.pcd')
