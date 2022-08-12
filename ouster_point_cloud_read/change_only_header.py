@@ -2,7 +2,7 @@ import os
 
 def main():
     file_list = []
-    for root, dirs, files in os.walk('I:\\20220802 1cycle sample\\220802\\220802_110747_K\\lidar_L'):
+    for root, dirs, files in os.walk('I:\\20220802_1cycle_sample\\220802\\220802_110326_K\\lidar_L'):
         for fname in files:
             full_fname = os.path.join(root, fname)
             file_list.append(full_fname)
@@ -11,6 +11,7 @@ def main():
     file_list = [file for file in file_list if file.endswith(".pcd")]
     file_list.sort()
     cnt = 0
+    print(file_list)
     for file in file_list:
         print(cnt, '/', len(file_list))
         cnt+=1
@@ -26,7 +27,7 @@ def replace_in_file(file_path):
     data_lines = fr.read()
     fr.close()
 
-    header_lines[2] = "FIELDS x y z reflexivity"
+    header_lines[2] = "FIELDS x y z reflectivity"
     with open(file_path, 'w') as f:
         for i in range(11):
             header_lines[i] = header_lines[i].replace("\r", "")
