@@ -4,7 +4,7 @@
 block_cipher = None
 
 
-a = Analysis(['pcd추출_ver5.1'],
+a = Analysis(['pcd추출_ver5.1.py'],
              pathex=[],
              binaries=[],
              datas=[],
@@ -26,7 +26,7 @@ exe = EXE(pyz,
           a.zipfiles,
           a.datas,  
           [],
-          name='pcd추출_ver5',
+          name='pcd추출_ver5.1',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
