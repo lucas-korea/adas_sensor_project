@@ -6,12 +6,12 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import pickle
 
-start = 0
+start = 1
 simple = 0
 if simple:
  pass
 elif start:
-    df = pd.read_excel('2021-04-08~2022-04-08.xlsx', sheet_name='가계부 내역')
+    df = pd.read_excel('2021-08-12~2022-08-12.xlsx', sheet_name='가계부 내역')
     print(df)
     df['year'] = df['날짜'].dt.year
     df['month'] = df['날짜'].dt.month
@@ -50,7 +50,7 @@ else:
             globals()['Case_{}'.format(month_list[i])] = pickle.load(f)
             print('Case_{}'.format(month_list[i]))
 
-current_month = '2022_4'
+current_month = '2022_8'
 # month_list.remove('2022_2')
 # month_list.remove('2021_6')
 # # month_list.remove('2021_3')

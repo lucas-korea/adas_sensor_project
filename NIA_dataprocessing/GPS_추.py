@@ -3,7 +3,7 @@ import pandas as pd
 import csv
 
 def function():
-    root_path = "I:\\20220802 1cycle sample\\20220802_110747\\20220802_110747\\"
+    root_path = "F:\\20220802 1cycle sample\\20220802_110747\\20220802_110747\\"
     match = open(root_path + "PCD\\20220802_110747_match_list.txt")
     lidar_tick = []
     lines = match.readlines()
