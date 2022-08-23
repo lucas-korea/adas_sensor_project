@@ -44,11 +44,8 @@ if __name__ == '__main__':
     data = pd.read_csv(path)
 
     RefImage = np.zeros((128,2048), dtype=np.uint8)
-    RefImageScatter = [[]]
     SignalImage = np.zeros((128,2048), dtype=np.uint8)
-    SignalImageScatter = [[]]
     AmbiantImage = np.zeros((128,2048), dtype=np.uint8)
-    AmbiantImageScatter = [[]]
     RangeImage = np.zeros((128,2048), dtype=np.uint8)
 
     file_start_name = ''
@@ -61,25 +58,22 @@ if __name__ == '__main__':
         for i in range(len(data)):
             if i % 5000 == 0:
                 print(i / len(data))
-            try:
-                HorizonIndex = int((math.atan(data.iloc[i]["Point:0"] / data.iloc[i]["Point:1"]) / math.pi * 360.0 + 180 )/ HorizonResol)
-                # HorizonIndexAzimuth.append(round((math.atan(data.iloc[i]["Point:0"] / data.iloc[i]["Point:1"]) / math.pi * 360.0 + 180 )/ HorizonResol, 3))
+            HorizonIndex = int((math.atan(data.iloc[i]["Point:0"] / data.iloc[i]["Point:1"]) / math.pi * 360.0 + 180 )/ HorizonResol)
+            # HorizonIndexAzimuth.append(round((math.atan(data.iloc[i]["Point:0"] / data.iloc[i]["Point:1"]) / math.pi * 360.0 + 180 )/ HorizonResol, 3))
 
-                if data.iloc[i]["Point:1"] < 0:
-                    HorizonIndex += 1024
+            if data.iloc[i]["Point:1"] < 0:
                 HorizonIndex += 1024
-                if HorizonIndex >2047:
-                    HorizonIndex -= 2048
-                RefImage[int(data.iloc[i].Channel)][HorizonIndex] += data.iloc[i]['Reflectivity']
-                # print(data.iloc[i]['Reflectivity'])
-                SignalImage[int(data.iloc[i].Channel)][HorizonIndex] += data.iloc[i]['Signal Photons']
-                AmbiantImage[int(data.iloc[i].Channel)][HorizonIndex] += data.iloc[i]['Ambiant Photons']
-                RangeImage[int(data.iloc[i].Channel)][HorizonIndex] += math.sqrt(data.iloc[i]["Point:0"] * data.iloc[i]["Point:0"] + data.iloc[i]["Point:0"] * data.iloc[i]["Point:0"]+
-                                                                                data.iloc[i]["Point:0"] * + data.iloc[i]["Point:0"])
-                # RangeImage[int(data.iloc[i].Channel)][HorizonIndex] = data.iloc[i]['Range']
+            HorizonIndex += 1024
+            if HorizonIndex >2047:
+                HorizonIndex -= 2048
+            RefImage[int(data.iloc[i].Channel)][HorizonIndex] += data.iloc[i]['Reflectivity']
+            # print(data.iloc[i]['Reflectivity'])
+            SignalImage[int(data.iloc[i].Channel)][HorizonIndex] += data.iloc[i]['Signal Photons']
+            AmbiantImage[int(data.iloc[i].Channel)][HorizonIndex] += data.iloc[i]['Ambiant Photons']
+            RangeImage[int(data.iloc[i].Channel)][HorizonIndex] += math.sqrt(data.iloc[i]["Point:0"] * data.iloc[i]["Point:0"] + data.iloc[i]["Point:0"] * data.iloc[i]["Point:0"]+
+                                                                            data.iloc[i]["Point:0"] * + data.iloc[i]["Point:0"])
+            # RangeImage[int(data.iloc[i].Channel)][HorizonIndex] = data.iloc[i]['Range']
 
-            except:
-                pass
         # print(max(RefImage))
         with open(file_start_name + "RefImage" + file_end_name + ".pickle", "wb") as fw:
             pickle.dump(RefImage, fw)
@@ -136,5 +130,3 @@ if __name__ == '__main__':
     cv2.imwrite(file_start_name + 'RangeImage' + file_end_name + '.png', RangeImage)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
-
-    # plt.scatter(data["Point:0"])
