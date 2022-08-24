@@ -4,6 +4,8 @@ from tkinter import filedialog
 from tkinter import messagebox
 from scipy.spatial import ConvexHull
 from numpy import *
+import pandas as pd
+
 
 # 3D IoU caculate code for 3D object detection
 # Kent 2018/12
@@ -173,6 +175,7 @@ if __name__ == '__main__':
     output_files = os.listdir(output_path)
     GT_files = os.listdir(GT_path)
     for i in range(len(output_files)):
+        print(output_files[i])
         with open(output_path + '\\' + output_files[i], 'r') as f:
             output_data = f.readline()
             output_data_splited = output_data.split(';')
@@ -180,18 +183,23 @@ if __name__ == '__main__':
         with open(GT_path + '\\' + output_files[i], 'r') as f: # output file is intersection of GT.
             GT_data = f.readline()
             GT_data_splited = GT_data.split(';')
-
-        for i in range(8):
-            output_data_splited[i] = double(output_data_splited[i])
-            GT_data_splited[i] = double(GT_data_splited[i])
-
+        for j in range(8):
+            output_data_splited[j] = double(output_data_splited[j])
+            GT_data_splited[j] = double(GT_data_splited[j])
         corners_3d_ground = get_3d_box((GT_data_splited[4], GT_data_splited[5], GT_data_splited[6]), GT_data_splited[7],
                                        (GT_data_splited[1], GT_data_splited[2], GT_data_splited[3]))
         corners_3d_predict = get_3d_box((output_data_splited[4], output_data_splited[5], output_data_splited[6]), output_data_splited[7],
                                         (output_data_splited[1], output_data_splited[2], output_data_splited[3]))
         (IOU_3d, IOU_2d) = box3d_iou(corners_3d_predict, corners_3d_ground) # 3d IoU/ 2d IoU of BEV(bird eye's view)
         print(IOU_3d)
+        IOU_path = "C:\\Users\\jcy37\\Desktop\\과제\\3D High resolution 라이다\\라이다 평가 Tool sw 개발\\sunny[seoul robotics]\\evaluation\\iou"
+        IOU_data = pd.read_csv(IOU_path + '\\' + output_files[i].split('.')[0] + '.csv')
+        print(IOU_data)
 
-        with open(output_path + '\\' + output_files[i], 'r') as f:
-            output_data = f.readline()
-            output_data_splited = output_data.split(';')
+        # with open( + '.csv', 'r') as f:
+        #     rdr = csv.reader(f)
+            # for line in rdr:
+            #     print(line[0].split('\t'))
+            # exit(1)
+            # # IOU_data = f.read()
+            # # print(IOU_data)
