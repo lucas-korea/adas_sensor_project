@@ -25,3 +25,6 @@ rm_zero() 불용
 ver5.1
 pcd 이어붙히는 부분 차량 후방(=degree 0)으로 수정. 지그 음영에 접합부 숨기기 위해.
 crop_zig_shade() 함수 삽입
+
+ver5.2
+고해상도 라이다 맨 윗 채널 삭제 - cal_lidar_pos(), (super resolution 관점에서)

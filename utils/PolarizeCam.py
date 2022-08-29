@@ -27,14 +27,17 @@ for i in range(0, int(h/2),2):
         image90[i + 1, j] = img[i * 2 + 1, j * 2]
         image90[i, j + 1] = img[i * 2, j * 2 + 1]
         image90[i + 1, j + 1] = img[i * 2 + 1, j * 2 + 1]
+
         image45[i, j] = img[i * 2, j * 2 + 2]
         image45[i + 1, j] = img[i * 2 + 1, j * 2 + 2]
         image45[i, j + 1] = img[i * 2, j * 2 + 2 + 1]
         image45[i + 1, j + 1] = img[i * 2 + 1, j * 2 + 2 + 1]
+
         image135[i, j] = img[i * 2 + 2, j * 2]
         image135[i + 1, j] = img[i * 2 + 2 + 1, j * 2]
         image135[i, j + 1] = img[i * 2 + 2, j * 2 + 1]
         image135[i + 1, j + 1] = img[i * 2 + 2 + 1, j * 2 + 1]
+
         image0[i, j] = img[i * 2 + 2, j * 2 + 2]
         image0[i + 1, j] = img[i * 2 + 2 + 1, j * 2 + 2]
         image0[i, j + 1] = img[i * 2 + 2, j * 2 + 2 + 1]
