@@ -159,6 +159,8 @@ def make_match_list_txtfile(lidar_ts_filelist, lidar_ts_path, camera_ts_path):
     return match_list_path_list
 
 
+
+# _match_list.txt 에 따라, 매칭된 이미지, high res 라이다를 각각 따로 저장한다. (이 때, low res 매칭시 양 끝단에서 매칭이 안되는 문제가 생긴다)
 def extract_PCDPNGpair_by_matchlist(match_list_path_list, camera_ts_path, camera_ts_filelist, png_move_dir, pcd_move_dir):
     print(match_list_path_list,'\n', camera_ts_path,'\n', camera_ts_filelist,'\n', png_move_dir,'\n', pcd_move_dir)
     match_list_i = 0
@@ -186,15 +188,8 @@ def extract_PCDPNGpair_by_matchlist(match_list_path_list, camera_ts_path, camera
         camera_match_file_list = []
         for i in range(len(camera_match_frame)):
             lidar_match_file_list.append([file for file in lidar_file_list if file.split('_')[3]==str(lidar_match_stamp[i])][-1])
-            # camera_match_file_list.append([file for file in camera_file_list if file.endswith('0' + str(camera_match_frame[i]) + ".png")][-1])
             camera_match_file_list.append([file for file in camera_file_list if (int(file.split('_')[-1].split('.')[0]) == int(camera_match_frame[i])) and file.startswith('1_')][-1])
-            # camera_match_file_list.append([file for file in camera_file_list if (int(file.split('_')[-1].split('.')[0]) == int(camera_match_frame[i])) and file.startswith('2_')][-1])
-            # camera_match_file_list.append([file for file in camera_file_list if (int(file.split('_')[-1].split('.')[0]) == int(camera_match_frame[i])) and file.startswith('3_')][-1])
-            # camera_match_file_list.append([file for file in camera_file_list if (int(file.split('_')[-1].split('.')[0]) == int(camera_match_frame[i])) and file.startswith('4_')][-1])
 
-            # camera_match_file_list.append([file for file in camera_file_list if (int(file.split('_')[-1].split('.')[0]) == int(camera_match_frame[i]))][-1])
-            # print(int(file.split('_')[-1].split('.')[0]))
-        print("camera_match_file_list", camera_match_file_list)
         for i in range(len(camera_match_file_list)):
             print("coping {} / {} folder \t {} / {} files...".format(match_list_i+1, len(match_list_path_list), i+1, len(camera_match_file_list)))
             shutil.copy2(camera_ts_path + '\\' + lidar_match_file_list[i], pcd_move_dir + '\\' + '_'.join(lidar_match_file_list[i].replace('.pcd', '').split('_')[0:2])[2:]
@@ -217,7 +212,7 @@ def matching_HighLow(match_list_path_list, lidar_ts_path, pcd_move_dir):
         with open(match_list, 'r') as f:
             lines = f.readlines()
         for i in range(len(lines)):
-            lidar_match_stamp.append(lines[i].split('\t')[2].replace('\n', ''))
+            lidar_match_stamp.append(lines[i].split('\t')[2].replace('\n', '')) #high res 라이다 timestamp를 참고한다
         LowLidarList = [file for file in os.listdir(lidar_ts_path)
                         if file.startswith('_'.join(match_list.split('\\')[-1].split('_')[0:2]))
                         and file.endswith("L_under.pcd")]
@@ -227,22 +222,22 @@ def matching_HighLow(match_list_path_list, lidar_ts_path, pcd_move_dir):
         LowLidar_stamp_List = []
         for i in range(len(LowLidarList)):
             LowLidar_stamp_List.append(int(LowLidarList[i].split('_')[3]))
+        LowLidar_stamp_List = np.asarray(LowLidar_stamp_List, dtype=np.uint32)
+        LowLidarList = np.array(LowLidarList, dtype=np.str_)
         print("LowLidar_stamp_List", LowLidar_stamp_List)
         cnt = 0
-        for i in range(len(LowLidarList)): # Low resolution 라이다 데이터를 기준으로, range 안의 high resolution 라이다 데이터가 있는지 확인
-            print(i, '/' , len(LowLidarList))
-            mask_arr1 = lidar_match_stamp_list[:] > LowLidar_stamp_List[i] - range_
-            mask_arr2 = lidar_match_stamp_list[:] <= LowLidar_stamp_List[i] + range_
+        for i in range(len(lidar_match_stamp_list)): # hign resolution 라이다 데이터를 기준으로, range 안의 low resolution 라이다 데이터가 있는지 확인
+            mask_arr1 = LowLidar_stamp_List[:] > lidar_match_stamp_list[i] - range_
+            mask_arr2 = LowLidar_stamp_List[:] <= lidar_match_stamp_list[i] + range_
             mask_all = np.logical_and(mask_arr1, mask_arr2)
-            if len(lidar_match_stamp_list[mask_all]):
-                shutil.copy2(lidar_ts_path + '\\' + LowLidarList[i],
+            if len(LowLidar_stamp_List[mask_all]):
+                shutil.copy2(lidar_ts_path + '\\' + LowLidarList[mask_all][0], # 순서대로 가져오는것이 아니라, range 안에서 매칭되는 파일을 복사
                              pcd_move_dir + '\\' + '_'.join(LowLidarList[i].split('_')[:2])[2:]
                              + '_'  + '{0:04d}'.format(cnt) + '_L'+ '.pcd')
                 # print('_'.join(LowLidarList[i].split('_')[:2])[2:])
-                cnt += 1
             else: # 만약 매칭되는 high res 라이다가 없으면 삭제
                 print("no matched!!")
-
+            cnt += 1
 def main():
     print("select_lidar_data_list_txtfile_and_make_lidarTimeStamp_txtfile.......")
     lidar_ts_filelist, lidar_ts_path = select_lidar_data_list_txtfile_and_make_lidarTimeStamp_txtfile()
@@ -255,5 +250,7 @@ def main():
     print("extract_PCDPNGpair_by_matchlist.......")
     extract_PCDPNGpair_by_matchlist(match_list_path_list, lidar_ts_path, camera_ts_path, png_move_dir, pcd_move_dir)
     matching_HighLow(match_list_path_list, lidar_ts_path, pcd_move_dir)
+
+
 if __name__ == "__main__":
     main()
