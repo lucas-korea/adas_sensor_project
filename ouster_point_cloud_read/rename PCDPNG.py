@@ -1,16 +1,16 @@
 import os
 
-PATH = "D:\\NIA3차\\NIA4차 대비 실도로 주행 sample PNGPCD"
+PATH = "I:\\20220824_calib\\calibration 쌍\\cam-lidar cali\\각도, 헤더 변환"
 
 list = [file for file in os.listdir(PATH) if os.path.splitext(file)[1] == '.png']
 print(list)
 cnt = 0
 for file in list:
-    os.rename(PATH + '\\' + file, PATH + '\\'+ str(cnt) + '_' + '_'.join(file.split('_')[0:2]) + '_' + file.split('_')[3])
+    os.rename(PATH + '\\' + file, PATH + '\\' + '_'.join(file.split('.')[0].split('_')[0:3])  + '.png' )
     cnt += 1
 
 list = [file for file in os.listdir(PATH) if os.path.splitext(file)[1] == '.pcd']
 cnt = 0
 for file in list:
-    os.rename(PATH + '\\' + file, PATH + '\\' + str(cnt) + '_' + '_'.join(file.split('_')[0:2]) + '_' + file.split('_')[4])
+    os.rename(PATH + '\\' + file, PATH + '\\' + '_'.join(file.split('.')[0].split('_')[0:3]) + '.pcd')
     cnt += 1

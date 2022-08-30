@@ -2,6 +2,8 @@ import os
 import struct
 from tkinter import filedialog
 from tkinter import messagebox
+import numpy as np
+
 
 # def main():
 #     PATH = "D:\\NIA4차 대비 실도로 주행 sample PNGPCD 3case"
@@ -35,6 +37,22 @@ def ChangeAxis(FilePath):
             onepoint = struct.unpack('ffff', point_cloud[0 + i * 16:16 + i * 16])
             f.write(struct.pack('ffff', -onepoint[0], onepoint[1], onepoint[2], onepoint[3]))
 
+def chaneg_angle(FilePath):
+    with open(FilePath, 'rb') as f:
+        header = b''
+        for i in range(11):
+            header += f.readline()
+        point_cloud = f.read()
+
+    with open(FilePath.split('.')[0] + '_convert2.pcd', 'ab') as f:
+        f.write(header)
+        for i in range(int(len(point_cloud)/16)):
+            onepoint = struct.unpack('ffff', point_cloud[0 + i * 16:16 + i * 16])
+            f.write(struct.pack('ffff',
+                                np.cos(2 / 180 * np.pi) * onepoint[0] - np.sin(2 / 180 * np.pi) * onepoint[1],
+                                np.sin(2 / 180 * np.pi) * onepoint[0] + np.cos(2 / 180 * np.pi) * onepoint[1]
+                                , onepoint[2], onepoint[3]))
+
 def select_files(str_):
     files = filedialog.askopenfilenames(initialdir=os.getcwd(),
                                         title=str_,
@@ -52,6 +70,6 @@ if __name__ == "__main__":
     # files = os.listdir(path)
     cnt = 0
     for file in files:
-        ChangeAxis(file)
+        chaneg_angle(file)
         print(cnt, '/', len(files))
         cnt += 1

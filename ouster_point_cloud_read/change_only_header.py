@@ -2,7 +2,7 @@ import os
 
 def main():
     file_list = []
-    for root, dirs, files in os.walk('I:\\20220802_1cycle_sample\\220802\\220802_110326_K\\lidar_L'):
+    for root, dirs, files in os.walk('I:\\20220824_calib\\calibration 쌍\\cam-lidar cali\\old'):
         for fname in files:
             full_fname = os.path.join(root, fname)
             file_list.append(full_fname)
@@ -27,7 +27,7 @@ def replace_in_file(file_path):
     data_lines = fr.read()
     fr.close()
 
-    header_lines[2] = "FIELDS x y z reflectivity"
+    header_lines[2] = "FIELDS x y z intensity"
     with open(file_path, 'w') as f:
         for i in range(11):
             header_lines[i] = header_lines[i].replace("\r", "")
