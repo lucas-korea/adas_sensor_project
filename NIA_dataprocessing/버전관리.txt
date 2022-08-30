@@ -24,3 +24,9 @@ ver4
 1149465_H            1149463_L
 ---                  ----
 
+ver4.1
+
+matching_high_low()
+           if len(LowLidar_stamp_List[mask_all]):
+                shutil.copy2(lidar_ts_path + '\\' + LowLidarList[mask_all][0], # 순서대로 가져오는것이 아니라, range 안에서 매칭되는 파일을 복사
+                             pcd_move_dir + '\\' + '_'.join(LowLidarList[mask_all][0].split('_')[:2])[2:]
