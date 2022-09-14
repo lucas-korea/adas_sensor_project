@@ -82,7 +82,9 @@ def RestoreImg():
     Rangetext.delete("1.0", "end")
 
 
-range_png, ref_png = PCD2PNG.MakePCDimg("C:\\Users\\jcy37\\PycharmProjects\\LidarEvaluation\\20220802_110747_000001_821092_H_upper.pcd")
+range_png, ref_png, ref_realLike_png = PCD2PNG.MakePCDimg("I:\\210902_lidar_cam_cali\\20210902_172619_000001_R.pcd")
+
+ref_realLike_png = cv2.applyColorMap(ref_realLike_png, cv2.COLORMAP_JET)
 
 window=tkinter.Tk()
 window.title("Katech Lidar evatluion program")

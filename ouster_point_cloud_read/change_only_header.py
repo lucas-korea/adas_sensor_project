@@ -2,7 +2,7 @@ import os
 
 def main():
     file_list = []
-    for root, dirs, files in os.walk('I:\\20220824_calib\\calibration 쌍\\cam-lidar cali\\old'):
+    for root, dirs, files in os.walk('I:\\20220824_calib\\calibration 쌍\\추가 데이터 3'):
         for fname in files:
             full_fname = os.path.join(root, fname)
             file_list.append(full_fname)

@@ -1,6 +1,6 @@
 import os
 
-PATH = "I:\\20220824_calib\\calibration 쌍\\cam-lidar cali\\각도, 헤더 변환"
+PATH = "I:\\20220824_calib\\calibration 쌍\\cam-lidar cali\\추가 데이터 3"
 
 list = [file for file in os.listdir(PATH) if os.path.splitext(file)[1] == '.png']
 print(list)

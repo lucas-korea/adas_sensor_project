@@ -5,11 +5,10 @@ import math
 import cv2
 import struct
 np.set_printoptions(threshold=sys.maxsize)
-RefImage = np.zeros((128, 2048), dtype=np.uint8)
+
 
 def parsing_binPCD2asciiPCD(PCD, type_list, count_list):
     start = 0
-    lines = [[]]
     pack_str = ""
     format_str = ""
     byte_len = 0
@@ -26,28 +25,29 @@ def parsing_binPCD2asciiPCD(PCD, type_list, count_list):
                 pack_str = pack_str + "B"
                 format_str = format_str + "{} "
                 byte_len = byte_len + 1
-    line_i = 0
-    format_str = format_str.split(" ")
     Depth_img = np.zeros((128,1024), dtype=np.uint8)
     intensity_img = np.zeros((128, 1024), dtype=np.uint8)
+    intensity_img_realLike = np.zeros((128, 2048), dtype=np.uint8)
     HorizonResol = 360 / (1024)
     for col in range(1024):
-
         for row in range(128):
+            #pixel에 1:1 매칭이 되는 이미지
             scalar_fileds = struct.unpack(pack_str, PCD[start: start + byte_len])  # B:부호없는 정수, c:문자
             Depth_img[row, col] = np.sqrt(scalar_fileds[0]*scalar_fileds[0] + scalar_fileds[1]*scalar_fileds[1] + scalar_fileds[2]*scalar_fileds[2])
             intensity_img[row, col] = scalar_fileds[3]
+            # Real like iamge.
+            scalar_fileds = list(scalar_fileds)
+            if scalar_fileds[1] == 0:
+                scalar_fileds[1] = 0.00001
+            HorizonIndex = int((math.atan(scalar_fileds[0] / scalar_fileds[1]) / math.pi * 360.0 + 180) / HorizonResol)
+            if scalar_fileds[1] < 0:
+                HorizonIndex += 1024
+            HorizonIndex += 1024
+            if HorizonIndex >2047:
+                HorizonIndex -= 2048
+            intensity_img_realLike[row][HorizonIndex] += scalar_fileds[3]
             start = start + byte_len
-
-            # HorizonIndex = int((math.atan(scalar_fileds[0] / scalar_fileds[1]) / math.pi * 360.0 + 180) / HorizonResol)
-            # if scalar_fileds[1] < 0:
-            #     HorizonIndex += 1024
-            # HorizonIndex += 1024
-            # if HorizonIndex >2047:
-            #     HorizonIndex -= 2048
-            # RefImage[row][HorizonIndex] += scalar_fileds[3]
-
-    return Depth_img, intensity_img
+    return Depth_img, intensity_img, intensity_img_realLike
 
 def MakePCDimg(file_name):
     Origin_pcd_f = open(file_name, 'rb')
@@ -89,7 +89,5 @@ def MakePCDimg(file_name):
         header.append(line + '\n')
 
     PCD_data_part = Origin_pcd_f.read()  # 헤더까지 다 읽은 기록이 있기 때문에, 나머지를 다 읽으면 PCD 데이터 부분이다.
-    Depth_img, intensity_img = parsing_binPCD2asciiPCD(PCD_data_part, type_list, count_list)
-    col_depth_img = cv2.applyColorMap(Depth_img, cv2.COLORMAP_JET)
-    col_intensity_img = cv2.applyColorMap(intensity_img, cv2.COLORMAP_JET)
-    return(Depth_img, intensity_img)
+    Depth_img, intensity_img, intensity_img_realLike = parsing_binPCD2asciiPCD(PCD_data_part, type_list, count_list)
+    return Depth_img, intensity_img, intensity_img_realLike

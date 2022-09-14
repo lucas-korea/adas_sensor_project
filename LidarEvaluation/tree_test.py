@@ -1,30 +1,19 @@
-import tkinter as tk
-from tkinter import ttk
+import cv2
+import PCD2PNG
+from PIL import Image
 
-root = tk.Tk()
+intensity_1, distance_1, real_1 = PCD2PNG.MakePCDimg("C:\\Users\\jcy37\\Downloads\\220824_171943_K (3)_태양광\\lidar_H\\1K_B08_O128_clear_sunset_summer_03010095.pcd")
+intensity_2, distance_2, real_2 = PCD2PNG.MakePCDimg("C:\\Users\\jcy37\\Downloads\\220824_171943_K (3)_태양광\\lidar_H\\1K_B08_O128_clear_sunset_summer_03010096.pcd")
+intensity_3, distance_3, real_3 = PCD2PNG.MakePCDimg("C:\\Users\\jcy37\\Downloads\\220824_171943_K (3)_태양광\\lidar_H\\1K_B08_O128_clear_sunset_summer_03010097.pcd")
+intensity_4, distance_4, real_4 = PCD2PNG.MakePCDimg("C:\\Users\\jcy37\\Downloads\\220824_171943_K (3)_태양광\\lidar_H\\1K_B08_O128_clear_sunset_summer_03010098.pcd")
 
-# root.columnconfigure(0, weight=1)
-# root.rowconfigure(0, weight=1)
+real_1 = cv2.applyColorMap(real_1, cv2.COLORMAP_JET)
+cv2.imshow("real_1", real_1)
+real_2 = cv2.applyColorMap(real_2, cv2.COLORMAP_JET)
+cv2.imshow("real_2", real_2)
+real_3 = cv2.applyColorMap(real_3, cv2.COLORMAP_JET)
+cv2.imshow("real_3", real_3)
+real_4 = cv2.applyColorMap(real_4, cv2.COLORMAP_JET)
+cv2.imshow("real_4", real_4)
 
-columns = [f'Column {i}' for i in range(10)]
-
-x_scrollbar = tk.Scrollbar(root, orient=tk.HORIZONTAL)
-x_scrollbar.grid(row=1, column=0, sticky=tk.E+tk.W)
-y_scrollbar = tk.Scrollbar(root, orient=tk.VERTICAL)
-y_scrollbar.grid(row=0, column=1, sticky=tk.N+tk.S)
-
-tree = ttk.Treeview(root, columns=columns, height=10, show="headings",
-    xscrollcommand=x_scrollbar.set, yscrollcommand=y_scrollbar.set)
-tree.grid(row=0, column=0, sticky=tk.N+tk.S+tk.E+tk.W)
-
-for col in tree['columns']:
-        tree.heading(col, text=f"{col}", anchor=tk.CENTER)
-        tree.column(col, anchor=tk.CENTER, width=100)
-
-for i in range(100):
-    tree.insert('', 'end', values=[i*10+j for j in range(len(columns))])
-
-x_scrollbar['command'] = tree.xview
-y_scrollbar['command'] = tree.yview
-
-root.mainloop()
+cv2.waitKey(0)
