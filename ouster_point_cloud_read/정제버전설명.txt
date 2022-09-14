@@ -13,7 +13,7 @@ ouster 각도 지정에 있어서 문제 있었던 부분이 있었음 -> 해결
 round 함수를 np.round로 대체하여 속도를 1/4로 줄임
 
 ver4: 0830 수정중 파일명 '정제'-> 'pcd추출'로 변경
-
+ver4.1 : find_start() 129.375도에서 0도로 수정
 ver5: 20220715 ouster firmware upgrade로 인해 ref_byte 부분 수정
 np.round 수정
 좌표축 진행방향을 +x로 수정

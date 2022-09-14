@@ -77,45 +77,18 @@ def cal_lidar_pos():
     x_ = (distance - beam_len) * np.cos(angle) * np.cos(Azimuth_sum) + beam_len * np.cos(Azimuth)
     y_ = (distance - beam_len) * np.cos(angle) * np.sin(Azimuth_sum) + beam_len * np.sin(Azimuth)
     z_ = (distance - beam_len) * np.sin(angle)
-    x_[:,0] = 0
-    y_[:,0] = 0
-    z_[:,0] = 0
     x_ = np.cos(-2 / 180 * np.pi) * x_ - np.sin(-2 / 180 * np.pi) * y_ # 라이다 지그 yaw 기울어짐 2도 수정
     y_ = np.sin(-2 / 180 * np.pi) * x_ + np.cos(-2 / 180 * np.pi) * y_
-    reflectivity[:,0] = 0
     return np.stack([-x_, y_, z_, reflectivity], axis=-1).reshape(-1, 4)
-
-def cal_lidar_pos_32ch():
-    angle32 = angle_low[0:128:4]
-    Azimuth_sum32 = Azimuth_sum_low[:, 0:128:4]
-    Azimuth32 = Azimuth[:, 0:128:4]
-    reflectivity32 = reflectivity[:, 0::4]
-    distance32 = distance[:, 0:128:4]
-    x_ = (distance32 - beam_len) * np.cos(angle32) * np.cos(Azimuth_sum32) + beam_len * np.cos(Azimuth32)
-    y_ = (distance32 - beam_len) * np.cos(angle32) * np.sin(Azimuth_sum32) + beam_len * np.sin(Azimuth32)
-    z_ = (distance32 - beam_len) * np.sin(angle32)
-    x_ = np.cos(-2 / 180 * np.pi) * x_ - np.sin(-2 / 180 * np.pi) * y_ # 라이다 지그 기울어짐 2도 수정
-    y_ = np.sin(-2 / 180 * np.pi) * x_ + np.cos(-2 / 180 * np.pi) * y_
-    return np.stack([-x_, y_, z_, reflectivity32], axis=-1).reshape(-1, 4)
 
 #bin style로 생성
 def make_bin_PCDfile(point_cloud, lidar_list_dir_path, ymd, hms, frame_num, tick_ct):
-    if HIGH:
-        print(len(point_cloud))
-        with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_" + '{0:06d}'.format(int(tick_ct)) + "_H_upper.pcd", 'w') as f:  # 생성될 pcd file 이름
-            f.write(ouster_header.HEADER.format(len(point_cloud), len(point_cloud))) # 미리 지정한 header를 pcd file 위에 write
-        with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_" + '{0:06d}'.format(int(tick_ct)) + "_H_upper.pcd", 'ab') as f:
-            # point_cloud = np.round(point_cloud, 4)
-            for i in range(len(point_cloud)):
-                f.write(struct.pack("ffff", point_cloud[i][0], point_cloud[i][1], point_cloud[i][2], point_cloud[i][3]))
-    elif LOW:
-        with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_" + '{0:06d}'.format(int(tick_ct)) + "_L_under.pcd", 'w') as f:  # 생성될 pcd file 이름
-            f.write(ouster_header.HEADER.format(len(point_cloud), len(point_cloud))) # 미리 지정한 header를 pcd file 위에 write
-        with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_" + '{0:06d}'.format(int(tick_ct)) + "_L_under.pcd", 'ab') as f:
-            # point_cloud = np.round(point_cloud, 4)
-            for i in range(len(point_cloud)):
-                f.write(struct.pack("ffff", point_cloud[i][0], point_cloud[i][1], point_cloud[i][2], point_cloud[i][3]))
-
+    with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_" + '{0:06d}'.format(int(tick_ct)) + "_H_upper.pcd", 'w') as f:  # 생성될 pcd file 이름
+        f.write(ouster_header.HEADER.format(len(point_cloud), len(point_cloud))) # 미리 지정한 header를 pcd file 위에 write
+    with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_" + '{0:06d}'.format(int(tick_ct)) + "_H_upper.pcd", 'ab') as f:
+        # point_cloud = np.round(point_cloud, 4)
+        for i in range(len(point_cloud)):
+            f.write(struct.pack("ffff", point_cloud[i][0], point_cloud[i][1], point_cloud[i][2], point_cloud[i][3]))
 
 #ascii style로 생성
 def make_ascii_PCDfile(point_cloud, lidar_list_dir_path, ymd, hms, frame_num, tick_ct):
@@ -170,7 +143,7 @@ def crop_start_trash(f):
 
 
 def main():
-    global HIGH, LOW
+    strech_data=[]
     files, lidar_list_dir_path = select_lidar_list()
     print(lidar_list_dir_path, files)
     with open(list(files)[0], 'r') as lidar_f:
@@ -181,25 +154,15 @@ def main():
         packets = []
         file_name = file_name.replace("\n", "")
         print("now converting : ", file_name)
-        if file_name.split('\\')[-1][0] == 'H':
-            HIGH = 1
-            LOW = 0
-        elif file_name.split('\\')[-1][0] == 'L':
-            HIGH = 0
-            LOW = 1
-        else :
-            print("check file name, weather first character is \'H\' or \'L\'")
-            exit(1)
         packets_size = os.path.getsize(file_name) / 24948 / 64
         pcd_num = 0
         frame_number = -1
         frame_i = 0
         tick_ct = -1
-        header_dummy = 0
-        header_dummy_flag = False
         ymd = file_name.replace(".", "_").split("_")[-3]
         hms = file_name.replace(".", "_").split("_")[-2]
         with open(file_name, 'rb') as f:  # 취득데이터 이름
+            f.read(880784900)
             crop_start_trash(f)
             while 1:
                 try:
@@ -208,37 +171,26 @@ def main():
                     time1 = time.time()
                     pcd_num = pcd_num + 1
                     for i in range(64):
-
                         f.read(2) # 처음에 붙은 0x00 0x00은 없애는 작업
                         header = f.read(50)  # katech header
-
                         data = list(f.read(24896))
-
-                        header = header.decode().replace(" ", "").split("\t")
-                        encoder = data[12: 16]
-                        encoder = (encoder[3] * 256 ** 3 + encoder[2] * 256 ** 2 + encoder[1] * 256 + encoder[0]) / TICKS / 1024 * 360
-
-                        if header_dummy != 0:
-                            if encoder - encoder_dummy != 5.625 and encoder + encoder_dummy != 354.375:
-                                print(encoder, encoder_dummy)
-                        encoder_dummy = encoder
-                        header_dummy = int(header[2])
                         if find_180deg(data):
-
+                            header = header.decode().replace(" ", "").split("\t")
                             frame_number = header[1]
                             tick_ct = header[2]
                         packets = packets + data
                         f.read(2)  # last enter
-                        if encoder == 354.375:
-                            if i != 63:
-                                print(i)
-                            break
-                    if (1):
+
+                    if (int(tick_ct) > 3901300 and int(tick_ct) < 3901500):
+                        print(tick_ct)
+                        strech_data.append(packets)
                         parsing_packet(packets)
-                        if HIGH : point_cloud = cal_lidar_pos()  # global로 선언된 distance, reflectivity, signal_photon, Azimuth를 조합하여 point cloud data 생성
-                        elif LOW : point_cloud = cal_lidar_pos_32ch()
-                        # point_cloud = rm_zero_point(point_cloud)
+                        point_cloud = cal_lidar_pos()  # global로 선언된 distance, reflectivity, signal_photon, Azimuth를 조합하여 point cloud data 생성
                         make_bin_PCDfile(point_cloud, lidar_list_dir_path, ymd, hms, frame_i, tick_ct)  # point cloud data를 pcd file로 변환
+                    if (int(tick_ct) > 3901500):
+                        strech_data  = np.asarray(strech_data)
+                        np.save(lidar_list_dir_path + '\\npdata.npy', strech_data)
+                        exit(1)
                     frame_i = frame_i + 1
                     packets = []
                 except Exception as e:
@@ -256,15 +208,8 @@ def crop_zig_shade(i, j):
 
 # ouster lidar packet을 manual에 맞게 parsing
 def parsing_packet(data):
-    global Azimuth,Azimuth_sum,Azimuth_sum_low,distance,reflectivity
-    Azimuth = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
-    Azimuth_sum = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
-    Azimuth_sum_low = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
-    distance = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))  # 128 = channel, 16 * 128 = block * packets
-    reflectivity = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
     index = 0
-    horizontal_res = len(data) / 24896
-    for i in range(int(horizontal_res+0.001) * BLOCKS):
+    for i in range(PACKETS_COUNT * BLOCKS):
         index = index + 8  # timestamp
         Encoder = data[index + 4: index + 8]
         Encoder = (Encoder[3] * 256 ** 3 + Encoder[2] * 256 ** 2 + Encoder[1] * 256 + Encoder[0])

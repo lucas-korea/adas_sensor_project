@@ -101,7 +101,6 @@ def cal_lidar_pos_32ch():
 #bin style로 생성
 def make_bin_PCDfile(point_cloud, lidar_list_dir_path, ymd, hms, frame_num, tick_ct):
     if HIGH:
-        print(len(point_cloud))
         with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_" + '{0:06d}'.format(int(tick_ct)) + "_H_upper.pcd", 'w') as f:  # 생성될 pcd file 이름
             f.write(ouster_header.HEADER.format(len(point_cloud), len(point_cloud))) # 미리 지정한 header를 pcd file 위에 write
         with open(lidar_list_dir_path + "\\" + ymd + "_" + hms + "_" + '{0:06d}'.format(int(frame_num)) + "_" + '{0:06d}'.format(int(tick_ct)) + "_H_upper.pcd", 'ab') as f:
@@ -195,8 +194,6 @@ def main():
         frame_number = -1
         frame_i = 0
         tick_ct = -1
-        header_dummy = 0
-        header_dummy_flag = False
         ymd = file_name.replace(".", "_").split("_")[-3]
         hms = file_name.replace(".", "_").split("_")[-2]
         with open(file_name, 'rb') as f:  # 취득데이터 이름
@@ -208,33 +205,18 @@ def main():
                     time1 = time.time()
                     pcd_num = pcd_num + 1
                     for i in range(64):
-
                         f.read(2) # 처음에 붙은 0x00 0x00은 없애는 작업
                         header = f.read(50)  # katech header
-
                         data = list(f.read(24896))
-
-                        header = header.decode().replace(" ", "").split("\t")
-                        encoder = data[12: 16]
-                        encoder = (encoder[3] * 256 ** 3 + encoder[2] * 256 ** 2 + encoder[1] * 256 + encoder[0]) / TICKS / 1024 * 360
-
-                        if header_dummy != 0:
-                            if encoder - encoder_dummy != 5.625 and encoder + encoder_dummy != 354.375:
-                                print(encoder, encoder_dummy)
-                        encoder_dummy = encoder
-                        header_dummy = int(header[2])
                         if find_180deg(data):
-
+                            header = header.decode().replace(" ", "").split("\t")
                             frame_number = header[1]
                             tick_ct = header[2]
                         packets = packets + data
                         f.read(2)  # last enter
-                        if encoder == 354.375:
-                            if i != 63:
-                                print(i)
-                            break
-                    if (1):
+                    if (frame_i % 10 == 0 or 1 ):
                         parsing_packet(packets)
+
                         if HIGH : point_cloud = cal_lidar_pos()  # global로 선언된 distance, reflectivity, signal_photon, Azimuth를 조합하여 point cloud data 생성
                         elif LOW : point_cloud = cal_lidar_pos_32ch()
                         # point_cloud = rm_zero_point(point_cloud)
@@ -256,15 +238,8 @@ def crop_zig_shade(i, j):
 
 # ouster lidar packet을 manual에 맞게 parsing
 def parsing_packet(data):
-    global Azimuth,Azimuth_sum,Azimuth_sum_low,distance,reflectivity
-    Azimuth = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
-    Azimuth_sum = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
-    Azimuth_sum_low = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
-    distance = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))  # 128 = channel, 16 * 128 = block * packets
-    reflectivity = np.zeros((BLOCKS * PACKETS_COUNT, CHANNEL))
     index = 0
-    horizontal_res = len(data) / 24896
-    for i in range(int(horizontal_res+0.001) * BLOCKS):
+    for i in range(PACKETS_COUNT * BLOCKS):
         index = index + 8  # timestamp
         Encoder = data[index + 4: index + 8]
         Encoder = (Encoder[3] * 256 ** 3 + Encoder[2] * 256 ** 2 + Encoder[1] * 256 + Encoder[0])
