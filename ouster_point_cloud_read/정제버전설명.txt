@@ -13,7 +13,7 @@ ouster 각도 지정에 있어서 문제 있었던 부분이 있었음 -> 해결
 round 함수를 np.round로 대체하여 속도를 1/4로 줄임
 
 ver4: 0830 수정중 파일명 '정제'-> 'pcd추출'로 변경
-
+ver4.1 : find_start() 129.375도에서 0도로 수정
 ver5: 20220715 ouster firmware upgrade로 인해 ref_byte 부분 수정
 np.round 수정
 좌표축 진행방향을 +x로 수정
@@ -30,5 +30,7 @@ ver5.2
 고해상도 라이다 맨 윗 채널 삭제 - cal_lidar_pos(), (super resolution 관점에서)
 
 ver5.3
-
 라이다 포지션 반시계 방향으로 2도 틀어짐 수정
+
+ver6.0
+64 패킷을 모아서 pcd 파일 생성을 하는 것이 아닌, 각도 체크를 하여 패킷 생략을 무시하고 각도 상 한바퀴 돌면 pcd를 만든다.
