@@ -56,12 +56,11 @@ def draw_ROI( bbox_x1, bbox_y1, bbox_x2, bbox_y2, crop_x1, crop_x2, resize_ratio
     RefROI[0: ref_img.shape[0], crop_x1: crop_x2] = ref_img[0: ref_img.shape[0], crop_x1: crop_x2]
     RangeROI[0: range_img.shape[0], crop_x1: crop_x2] = range_img[0: range_img.shape[0], crop_x1: crop_x2]
     # draw ROI in image
-    RefROI = cv2.rectangle(RefROI, (bbox_x1, bbox_y1), (bbox_x2,bbox_y2), (255,50,50), 1)
-    RangeROI = cv2.rectangle(RangeROI, (bbox_x1, bbox_y1), (bbox_x2,bbox_y2), (255,50,50), 1)
+    RefROI = cv2.rectangle(RefROI, (bbox_x1, bbox_y1), (bbox_x2,bbox_y2), (255,50,50), 2)
+    RangeROI = cv2.rectangle(RangeROI, (bbox_x1, bbox_y1), (bbox_x2,bbox_y2), (255,50,50), 2)
     # resize
     RefROI = cv2.resize(RefROI, (0,0), fx=resize_ratio, fy=resize_ratio)
     RangeROI = cv2.resize(RangeROI, (0,0), fx=resize_ratio, fy=resize_ratio)
-
     Ref_output_img = Image.fromarray(RefROI)
     Ref_imgtk = ImageTk.PhotoImage(image=Ref_output_img)
     RefLidarImage.config(image=Ref_imgtk)
@@ -144,7 +143,7 @@ tkinter.Entry(window, textvariable=resize_ratio).place(x=70,y=230+128)
 
 
 draw_ROI = partial(draw_ROI,x1,y1,x2,y2, crop_num1, crop_num2, resize_ratio)
-button = tkinter.Button(window, text="영역그리기", command=draw_ROI)
+button = tkinter.Button(window, text="적용", command=draw_ROI)
 button.place(x=130,y=270+128)
 
 # 원상 복구 button

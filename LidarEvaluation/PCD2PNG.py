@@ -32,9 +32,12 @@ def parsing_binPCD2asciiPCD(PCD, type_list, count_list):
     for col in range(1024):
         for row in range(128):
             #pixel에 1:1 매칭이 되는 이미지
+            real_col = col - (row % 4) * 4
+            if real_col < 0:
+                real_col += 1024
             scalar_fileds = struct.unpack(pack_str, PCD[start: start + byte_len])  # B:부호없는 정수, c:문자
-            Depth_img[row, col] = np.sqrt(scalar_fileds[0]*scalar_fileds[0] + scalar_fileds[1]*scalar_fileds[1] + scalar_fileds[2]*scalar_fileds[2])
-            intensity_img[row, col] = scalar_fileds[3]
+            Depth_img[row, real_col] = np.sqrt(scalar_fileds[0]*scalar_fileds[0] + scalar_fileds[1]*scalar_fileds[1] + scalar_fileds[2]*scalar_fileds[2])
+            intensity_img[row, real_col] = scalar_fileds[3]
             # Real like iamge.
             scalar_fileds = list(scalar_fileds)
             if scalar_fileds[1] == 0:
