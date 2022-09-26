@@ -82,7 +82,7 @@ def RestoreImg():
     Rangetext.delete("1.0", "end")
 
 
-range_png, ref_png, ref_realLike_png = PCD2PNG.MakePCDimg("I:\\210902_lidar_cam_cali\\20210902_172619_000001_R.pcd")
+range_png, ref_png, ref_realLike_png = PCD2PNG.MakePCDimg("I:\\20220802_1cycle_sample\\20220802_110924\\20220802_110924\\PCDmatched\\220802_110924_0001_H.pcd")
 
 ref_realLike_png = cv2.applyColorMap(ref_realLike_png, cv2.COLORMAP_JET)
 
