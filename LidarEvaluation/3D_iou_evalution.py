@@ -223,9 +223,6 @@ if __name__ == '__main__':
     output_path = "C:\\Users\\jcy37\\Desktop\\과제\\3D High resolution 라이다\\라이다 평가 Tool sw 개발\\sunny[seoul robotics]\\output\\objects"
     IOU_path = "C:\\Users\\jcy37\\Desktop\\과제\\3D High resolution 라이다\\라이다 평가 Tool sw 개발\\sunny[seoul robotics]\\evaluation\\iou"
 
-
-
-
     output_files = os.listdir(output_path)
     result = pd.merge(make_GT_df(GT_path_=GT_path), make_output_df(output_path_=output_path), on="filename", how="outer")
     result = pd.merge(result, make_IOU_df(IOU_path_=IOU_path),  on="filename", how="outer")
@@ -242,15 +239,15 @@ if __name__ == '__main__':
             for j in range(len(result["IOU"][i])):
                 GT_obj = result['GT'][i][j]
                 output_obj = result['output'][i][j]
-                corners_3d_ground = get_3d_box((GT_obj[4], GT_obj[5], GT_obj[6]), GT_obj[7],(GT_obj[1], GT_obj[2],GT_obj[3]))
-                corners_3d_predict = get_3d_box((output_obj[4], output_obj[5], output_obj[6]), output_obj[7],(output_obj[1], output_obj[2], output_obj[3]))
+                corners_3d_ground = get_3d_box((GT_obj[4], GT_obj[6], GT_obj[5]), GT_obj[7],(GT_obj[1],GT_obj[3], GT_obj[2]))
+                corners_3d_predict = get_3d_box((output_obj[4], output_obj[6], output_obj[5]), output_obj[7],(output_obj[1], output_obj[3], output_obj[2] ))
                 (IOU_3d, IOU_2d) = box3d_iou(corners_3d_predict,corners_3d_ground)  # 3d IoU/ 2d IoU of BEV(bird eye's view)
-                my_IOU_unit.append('{0:0.2f}'.format(IOU_3d))
+                my_IOU_unit.append('{0:0.3f}'.format(IOU_3d))
                 if result["IOU"][i][j] == '':
-                    IOU_gap_unit.append('{0:0.2f}'.format(abs(IOU_3d - 0)))
+                    IOU_gap_unit.append('{0:0.3f}'.format(abs(IOU_3d - 0)))
                 else:
-                    IOU_gap_unit.append('{0:0.2f}'.format(abs(IOU_3d - float(result["IOU"][i][j]))))
+                    IOU_gap_unit.append('{0:0.3f}'.format(abs(IOU_3d - float(result["IOU"][i][j]))))
 
         result['my_IOU'][i] = my_IOU_unit
         result['IOU_gap'][i] = IOU_gap_unit
-    result.to_csv("test1.csv")
+    result.to_csv("test2.csv")
