@@ -168,13 +168,10 @@ def get_3d_box(box_size, heading_angle, center):
     corners_3d = np.transpose(corners_3d)
     return corners_3d
 
-
-
-
 def make_output_df(output_path_):
     output_files_ = os.listdir(output_path_)
     output_result = pd.DataFrame({"filename" : [],
-              "result" : []})
+              "output" : []})
     for i in range(len(output_files_)):
         with open(output_path + '\\' + output_files_[i], 'r') as f:
             file_length = len(f.readlines())
@@ -186,13 +183,13 @@ def make_output_df(output_path_):
                 for j in range(8):
                     output_data_splited[j] = double(output_data_splited[j])
                 output_datas.append(output_data_splited)
-        output_result.loc[i] = [output_files_[i], output_datas]
+        output_result.loc[i] = output_files_[i].split('.')[0], output_datas
     return output_result
 
 def make_GT_df(GT_path_):
     GT_files_ = os.listdir(GT_path_)
     GT_result = pd.DataFrame({"filename" : [],
-              "result" : []})
+              "GT" : []})
     for i in range(len(GT_files_)):
         with open(GT_path + '\\' + GT_files_[i], 'r') as f:
             file_length = len(f.readlines())
@@ -204,47 +201,56 @@ def make_GT_df(GT_path_):
                 for j in range(8):
                     GT_data_splited[j] = double(GT_data_splited[j])
                 GT_datas.append(GT_data_splited)
-        GT_result.loc[i] = [GT_files_[i], GT_datas]
+        GT_result.loc[i] = GT_files_[i].split('.')[0], GT_datas
     return GT_result
+
+def make_IOU_df(IOU_path_):
+    IOU_files_ = os.listdir(IOU_path_)
+    IOU_result = pd.DataFrame({"filename" : [],
+                               "IOU" : []})
+    for i in range(len(IOU_files_)):
+        IOU_data = pd.read_csv(IOU_path_ + '\\' + IOU_files_[i])
+        IOU_datas = []
+        for k in range(IOU_data.shape[0]):
+            IOU_datas.append(IOU_data.iloc[k, 0].split('\t')[k + 1])
+        IOU_result.loc[i] = IOU_files_[i].split('.')[0], IOU_datas
+    return IOU_result
 
 if __name__ == '__main__':
     # output_path = select_folder("평가 결과가 모여져 있는 폴더")
     # GT_path = select_folder("GT 폴더")
     GT_path = "C:\\Users\\jcy37\\Desktop\\과제\\3D High resolution 라이다\\라이다 평가 Tool sw 개발\\sunny[seoul robotics]\\south_to_west\\label"
     output_path = "C:\\Users\\jcy37\\Desktop\\과제\\3D High resolution 라이다\\라이다 평가 Tool sw 개발\\sunny[seoul robotics]\\output\\objects"
-    file_length = 0
+    IOU_path = "C:\\Users\\jcy37\\Desktop\\과제\\3D High resolution 라이다\\라이다 평가 Tool sw 개발\\sunny[seoul robotics]\\evaluation\\iou"
+
+
+
 
     output_files = os.listdir(output_path)
-    result_merge = pd.merge(make_GT_df(GT_path_=GT_path), make_output_df( output_path_=output_path), on="filename", how="outer")
+    result = pd.merge(make_GT_df(GT_path_=GT_path), make_output_df(output_path_=output_path), on="filename", how="outer")
+    result = pd.merge(result, make_IOU_df(IOU_path_=IOU_path),  on="filename", how="outer")
 
-    # for i in range(len(result_merge)):
-    #     for output_obj in result_merge.loc[i]["result_x"]:
-    #         for GT_obj in result_merge.loc[i]
+    result["my_IOU"] = None
+    result["IOU_gap"] = None
 
+    for i in range(len(result)):
+        my_IOU_unit = []
+        IOU_gap_unit = []
+        if type(result["IOU"][i]) is float: # GT만 있고 output은 없는 경우
+            pass
+        else:
+            for j in range(len(result["IOU"][i])):
+                GT_obj = result['GT'][i][j]
+                output_obj = result['output'][i][j]
+                corners_3d_ground = get_3d_box((GT_obj[4], GT_obj[5], GT_obj[6]), GT_obj[7],(GT_obj[1], GT_obj[2],GT_obj[3]))
+                corners_3d_predict = get_3d_box((output_obj[4], output_obj[5], output_obj[6]), output_obj[7],(output_obj[1], output_obj[2], output_obj[3]))
+                (IOU_3d, IOU_2d) = box3d_iou(corners_3d_predict,corners_3d_ground)  # 3d IoU/ 2d IoU of BEV(bird eye's view)
+                my_IOU_unit.append('{0:0.2f}'.format(IOU_3d))
+                if result["IOU"][i][j] == '':
+                    IOU_gap_unit.append('{0:0.2f}'.format(abs(IOU_3d - 0)))
+                else:
+                    IOU_gap_unit.append('{0:0.2f}'.format(abs(IOU_3d - float(result["IOU"][i][j]))))
 
-
-
-    #     corners_3d_ground = get_3d_box((result['GT'][i][q][4], result['GT'][i][q][5], result['GT'][i][q][6]), result['GT'][i][q][7],
-    #                                    (result['GT'][i][q][1], result['GT'][i][q][2], result['GT'][i][q][3]))
-    #     corners_3d_predict = get_3d_box((result['output'][i][q][4], result['output'][i][q][5], result['output'][i][q][6]), result['output'][i][q][7],
-    #                                     (result['output'][i][q][1], result['output'][i][q][2], result['output'][i][q][3]))
-    #     (IOU_3d, IOU_2d) = box3d_iou(corners_3d_predict, corners_3d_ground) # 3d IoU/ 2d IoU of BEV(bird eye's view)
-    #     print("IOU3d:\n", IOU_3d)
-    IOU_path = "C:\\Users\\jcy37\\Desktop\\과제\\3D High resolution 라이다\\라이다 평가 Tool sw 개발\\sunny[seoul robotics]\\evaluation\\iou"
-    IOU_data = pd.read_csv(IOU_path + '\\' + output_files[67].split('.')[0] + '.csv')
-    # print(IOU_data)
-    for k in range(IOU_data.shape[0]):
-        # print(IOU_data.iloc[k,0].replace(" ", ""))
-        print(IOU_data.iloc[k,0].split('\t')[k+1])
-
-
-        # print(IOU_data.iloc[0])
-        # exit(1)
-        # print('\n')
-        # with open( + '.csv', 'r') as f:
-        #     rdr = csv.reader(f)
-            # for line in rdr:
-            #     print(line[0].split('\t'))
-            # exit(1)
-            # # IOU_data = f.read()
-            # # print(IOU_data)
+        result['my_IOU'][i] = my_IOU_unit
+        result['IOU_gap'][i] = IOU_gap_unit
+    result.to_csv("test1.csv")
