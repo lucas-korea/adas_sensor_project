@@ -200,10 +200,8 @@ def main():
         with open(file_name, 'rb') as f:  # 취득데이터 이름
             crop_start_trash(f)
             while 1:
-<<<<<<< HEAD
                 encoder_dummy = -1
-=======
->>>>>>> 2bcd6e80c8fed6dda9616f9440dcc120176a3dd0
+
                 try:
                     print(file_num+1,'/', len(lidar_file_list),'\t',pcd_num,"/",packets_size,"frame\t", format((packets_size - pcd_num)*(time.time() - time1)/60, '.2f'),"min left",
                           "   now converting : ", file_name)
@@ -217,35 +215,22 @@ def main():
                         ## encoder check ##
                         encoder = data[12: 16]
                         encoder = (encoder[3] * 256 ** 3 + encoder[2] * 256 ** 2 + encoder[1] * 256 + encoder[0]) / TICKS / 1024 * 360
-<<<<<<< HEAD
                         # if encoder_flag == True and encoder_dummy != -1 and encoder - encoder_dummy != 5.625 and encoder + encoder_dummy != 354.375:
                         #     print(encoder, encoder_dummy)
                         # encoder_flag = True
 
-=======
-                        if encoder_flag is True and encoder - encoder_dummy != 5.625 and encoder + encoder_dummy != 354.375:
-                            print(encoder, encoder_dummy)
-                        encoder_flag = True
-                        encoder_dummy = encoder
->>>>>>> 2bcd6e80c8fed6dda9616f9440dcc120176a3dd0
 
                         if find_180deg(data):
                             frame_number = header[1]
                             tick_ct = header[2]
                         packets = packets + data
                         f.read(2)  # last enter
-<<<<<<< HEAD
                         if encoder == 354.375 or (encoder < encoder_dummy):
                             # if i != 63:
                             #     print(i)
                             break
                         encoder_dummy = encoder
-=======
-                        if encoder == 354.375 or (encoder):
-                            if i != 63:
-                                print(i)
-                            break
->>>>>>> 2bcd6e80c8fed6dda9616f9440dcc120176a3dd0
+
                     if (frame_i % 10 ==0 or 1):
                         parsing_packet(packets)
                         if HIGH : point_cloud = cal_lidar_pos()  # global로 선언된 distance, reflectivity, signal_photon, Azimuth를 조합하여 point cloud data 생성
