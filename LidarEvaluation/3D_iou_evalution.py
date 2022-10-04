@@ -5,6 +5,8 @@ from tkinter import messagebox
 from scipy.spatial import ConvexHull
 from numpy import *
 import pandas as pd
+import iou
+
 # row 생략 없이 출력
 pd.set_option('display.max_rows', None)
 # col 생략 없이 출력
@@ -216,6 +218,9 @@ def make_IOU_df(IOU_path_):
         IOU_result.loc[i] = IOU_files_[i].split('.')[0], IOU_datas
     return IOU_result
 
+def bubble_sort(result):
+    pass
+
 if __name__ == '__main__':
     # output_path = select_folder("평가 결과가 모여져 있는 폴더")
     # GT_path = select_folder("GT 폴더")
@@ -226,7 +231,6 @@ if __name__ == '__main__':
     output_files = os.listdir(output_path)
     result = pd.merge(make_GT_df(GT_path_=GT_path), make_output_df(output_path_=output_path), on="filename", how="outer")
     result = pd.merge(result, make_IOU_df(IOU_path_=IOU_path),  on="filename", how="outer")
-
     result["my_IOU"] = None
     result["IOU_gap"] = None
 
@@ -241,13 +245,14 @@ if __name__ == '__main__':
                 output_obj = result['output'][i][j]
                 corners_3d_ground = get_3d_box((GT_obj[4], GT_obj[6], GT_obj[5]), GT_obj[7],(GT_obj[1],GT_obj[3], GT_obj[2]))
                 corners_3d_predict = get_3d_box((output_obj[4], output_obj[6], output_obj[5]), output_obj[7],(output_obj[1], output_obj[3], output_obj[2] ))
-                (IOU_3d, IOU_2d) = box3d_iou(corners_3d_predict,corners_3d_ground)  # 3d IoU/ 2d IoU of BEV(bird eye's view)
-                my_IOU_unit.append('{0:0.3f}'.format(IOU_3d))
+                IoU_3D, flag_detected = iou.evaluate_IoU(GT_obj, output_obj, 0.5)
+                # (IOU_3d, IOU_2d) = box3d_iou(corners_3d_predict,corners_3d_ground)  # 3d IoU/ 2d IoU of BEV(bird eye's view)
+                my_IOU_unit.append('{0:0.3f}'.format(IoU_3D))
                 if result["IOU"][i][j] == '':
-                    IOU_gap_unit.append('{0:0.3f}'.format(abs(IOU_3d - 0)))
+                    IOU_gap_unit.append('{0:0.3f}'.format(abs(IoU_3D - 0)))
                 else:
-                    IOU_gap_unit.append('{0:0.3f}'.format(abs(IOU_3d - float(result["IOU"][i][j]))))
+                    IOU_gap_unit.append('{0:0.3f}'.format(abs(IoU_3D - float(result["IOU"][i][j]))))
 
         result['my_IOU'][i] = my_IOU_unit
         result['IOU_gap'][i] = IOU_gap_unit
-    result.to_csv("test2.csv")
+    # result.to_csv("test2.csv")
