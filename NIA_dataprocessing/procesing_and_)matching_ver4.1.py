@@ -248,8 +248,8 @@ def main():
     pcd_move_dir = select_folder("매칭한 PCD 파일을 저장할 폴더를 선택하시오")
     match_list_path_list = make_match_list_txtfile(lidar_ts_filelist, lidar_ts_path, camera_ts_path)
     print("extract_PCDPNGpair_by_matchlist.......")
-    # extract_PCDPNGpair_by_matchlist(match_list_path_list, lidar_ts_path, camera_ts_path, png_move_dir, pcd_move_dir)
-    matching_HighLow(match_list_path_list, lidar_ts_path, pcd_move_dir)
+    extract_PCDPNGpair_by_matchlist(match_list_path_list, lidar_ts_path, camera_ts_path, png_move_dir, pcd_move_dir)
+    # matching_HighLow(match_list_path_list, lidar_ts_path, pcd_move_dir)
 
 
 if __name__ == "__main__":

@@ -26,16 +26,37 @@ def select_folder(str_):
     return "\\".join(folder.split("/"))
 
 
+def copy_frametimestamp():
+    file_path_list = []
+    file_list = []
+    dirname = select_folder("Frame_TimesStamp(이미지 관련)를 다 찾고자 하는 상위 폴더를 선택하세요")
+    move_dirname = select_folder("Frame_TimesStamp를 복사할 곳을 선택하세요")
+    for (path, dir, files) in os.walk(dirname):
+        file_list.append([file for file in files if file.startswith("Frame_TimeStamp_")])
+        file_path_list.append([path + '\\' + file for file in files if file.startswith("Frame_TimeStamp_")])
+    file_list = [v for v in file_list if v]
+    file_path_list = [v for v in file_path_list if v]
 
-file_path_list = []
-file_list = []
-dirname = select_folder("Frame_TimesStamp(이미지 관련)를 다 찾고자 하는 상위 폴더를 선택하세요")
-for (path, dir, files) in os.walk(dirname):
-    file_list.append([file for file in files if file.startswith("Frame_TimeStamp_")])
-    file_path_list.append([path + '\\' + file for file in files if file.startswith("Frame_TimeStamp_")])
-file_list = [v for v in file_list if v]
-file_path_list = [v for v in file_path_list if v]
-move_dirname = select_folder("Frame_TimesStamp를 복사할 곳을 선택하세요")
-file_new_list = [0 for i in range(len(file_list[0]))]
-for i in range(len(file_path_list)):
-    shutil.copy2(file_path_list[i][0], move_dirname + '\\' + file_list[i][0])
+    file_new_list = [0 for i in range(len(file_list[0]))]
+    for i in range(len(file_path_list)):
+        shutil.copy2(file_path_list[i][0], move_dirname + '\\' + file_list[i][0])
+
+def move_image_file():
+    file_path_list = []
+    file_list = []
+    dirname = select_folder("image를 다 찾고자 하는 상위 폴더를 선택하세요")
+    move_dirname = select_folder("image를 복사할 곳을 선택하세요")
+    for (path, dir, files) in os.walk(dirname):
+        print(path)
+        for file in files:
+            if file.endswith(".png"):
+                file_list.append(file)
+                file_path_list.append(path + '\\' + file)
+
+    for i in range(len(file_path_list)):
+        if i % 1000 == 0:
+            print("{} / {} ".format(i, len(file_path_list)))
+        shutil.move(file_path_list[i], move_dirname + '\\' + file_list[i])
+
+if __name__ == "__main__":
+    move_image_file()
