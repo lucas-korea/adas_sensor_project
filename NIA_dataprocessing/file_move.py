@@ -58,5 +58,46 @@ def move_image_file():
             print("{} / {} ".format(i, len(file_path_list)))
         shutil.move(file_path_list[i], move_dirname + '\\' + file_list[i])
 
+def distribute_Kcity_data():
+    PCDpath = "Y:\\PCDmatched"
+    PNGpath = "Y:\\PNGmatched"
+    for (path, dir, files) in os.walk("Y:"):
+        for file in files:
+            if file.endswith(".bin") and file.startswith("GPS"):
+                print(path, dir, file)
+                os.makedirs('\\'.join(path.split('\\')[:-1]) + "\\" + "image_F", exist_ok=True)
+                os.makedirs('\\'.join(path.split('\\')[:-1]) + "\\" + "image_B", exist_ok=True)
+                os.makedirs('\\'.join(path.split('\\')[:-1]) + "\\" + "image_L", exist_ok=True)
+                os.makedirs('\\'.join(path.split('\\')[:-1]) + "\\" + "image_R", exist_ok=True)
+                os.makedirs('\\'.join(path.split('\\')[:-1]) + "\\" + "Lidar_H", exist_ok=True)
+
+                PCDlist = os.listdir(PCDpath)
+                PCDlist = [f for f in PCDlist if f.startswith("_".join(file.split('_')[1:3])[2:-4]) and f.endswith('.pcd')]
+
+                PNGlistF = os.listdir(PNGpath)
+                PNGlistF = [f for f in PNGlistF if f.startswith("_".join(file.split('_')[1:3])[2:-4]) and f.endswith("F.png")]
+
+                PNGlistB = os.listdir(PNGpath)
+                PNGlistB = [f for f in PNGlistB if f.startswith("_".join(file.split('_')[1:3])[2:-4]) and f.endswith("B.png")]
+
+                PNGlistL = os.listdir(PNGpath)
+                PNGlistL = [f for f in PNGlistL if f.startswith("_".join(file.split('_')[1:3])[2:-4]) and f.endswith("L.png")]
+
+                PNGlistR = os.listdir(PNGpath)
+                PNGlistR = [f for f in PNGlistR if f.startswith("_".join(file.split('_')[1:3])[2:-4]) and f.endswith("R.png")]
+
+                for PCDfile in PCDlist:
+                    shutil.copy2(PCDpath + '\\' + PCDfile, '\\'.join(path.split('\\')[:-1]) + "\\" + "Lidar_H" + '\\' + PCDfile)
+                for PNGfile in PNGlistF:
+                    shutil.copy2(PNGpath + '\\' + PNGfile, '\\'.join(path.split('\\')[:-1]) + "\\" + "image_F" + '\\' + PNGfile)
+                for PNGfile in PNGlistB:
+                    shutil.copy2(PNGpath + '\\' + PNGfile, '\\'.join(path.split('\\')[:-1]) + "\\" + "image_B" + '\\' + PNGfile)
+                for PNGfile in PNGlistL:
+                    shutil.copy2(PNGpath + '\\' + PNGfile, '\\'.join(path.split('\\')[:-1]) + "\\" + "image_L" + '\\' + PNGfile)
+                for PNGfile in PNGlistR:
+                    shutil.copy2(PNGpath + '\\' + PNGfile, '\\'.join(path.split('\\')[:-1]) + "\\" + "image_R" + '\\' + PNGfile)
+
+
+
 if __name__ == "__main__":
-    move_image_file()
+    distribute_Kcity_data()
