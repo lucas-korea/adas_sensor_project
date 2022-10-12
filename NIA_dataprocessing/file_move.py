@@ -63,7 +63,7 @@ def distribute_Kcity_data():
     PNGpath = "Y:\\PNGmatched"
     for (path, dir, files) in os.walk("Y:"):
         for file in files:
-            if file.endswith(".bin") and file.startswith("GPS"):
+            if file.endswith(".bin") and file.startswith("GPS") and not path[0:4] == "Y:10" and not path[0:4] == "Y:15" and not path[0:4] == "Y:20" and not path[0:8] == "Y:30mm\\L" and not path[0:14] == "Y:30mm\scene_1":
                 print(path, dir, file)
                 os.makedirs('\\'.join(path.split('\\')[:-1]) + "\\" + "image_F", exist_ok=True)
                 os.makedirs('\\'.join(path.split('\\')[:-1]) + "\\" + "image_B", exist_ok=True)
