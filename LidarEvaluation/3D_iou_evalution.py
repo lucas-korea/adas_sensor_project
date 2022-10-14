@@ -73,20 +73,39 @@ def make_IOU_df(IOU_path_):
     return IOU_result
 
 def sort_matchin_GT_output(matching_df):
-    matching_df = pd.to_numeric(matching_df)
-    print(type(matching_df.iloc[0][0]))
-    print(matching_df.columns.values[0])
-    print(matching_df[[matching_df.columns.values[0]]])
-    print(type(matching_df[[matching_df.columns.values[0]]]))
-    print(matching_df[[matching_df.columns.values[0]]].idxmax())
-    print(matching_df.max())
-    # for i in range(len(matching_df.columns)):
-    #
-    #     print(matching_df.max(axis=1).values)
-        # exit(1)
+    origin_df = matching_df.copy()
+    FN = 0
+    FP = 0
+    print(matching_df)
+    for i in range(origin_df.shape[0]): # 행개수(gt개수) 만큼 반복
+        matched_row = -1
+        matched_col = -2
+        Nlarge_i = 1
+        while(matching_df.shape[1] > Nlarge_i - 1 ):
+            matched_row = matching_df.astype(float).apply(lambda row: row.nlargest(Nlarge_i),axis=1).index[0] # 기준 GT
+            matched_col = matching_df.astype(float).apply(lambda row: row.nlargest(Nlarge_i).index.values[Nlarge_i-1],axis=1).loc[matching_df.astype(float).apply(lambda row: row.nlargest(Nlarge_i),axis=1).index[0]]
+            # 기준 GT에 대해 가장 큰 iou를 가진 output
+            matched_key = matching_df[matching_df.astype(float).apply(lambda row: row.nlargest(Nlarge_i).index.values[Nlarge_i-1],axis=1)
+                  .loc[matching_df.astype(float).apply(lambda row: row.nlargest(Nlarge_i),axis=1).index[0]]].astype(float).idxmax()# 기준 GT에 대해 가장 큰 iou를 가진 output 기준 가장 큰 iou를 가진 GT
+            if matched_row == matched_key: break # 가장 큰 iou가 잘 매칭되면 끝
+            Nlarge_i += 1
+        if matched_row == matched_key:
+            if matching_df[matched_col][matched_row] < 0.5: # 매칭됐는데도 불구하고 기준 iou보다 낮으면 fail.
+                FP += 1;FN += 1
+            matching_df.drop([matched_row], inplace=True)
+            matching_df.drop([matched_col], axis='columns', inplace=True)
+        elif matching_df.shape[1] == 0:
+            FN += matching_df.shape[0]
+            matching_df.drop(matching_df.index.values, inplace=True)
+            break
+        else: # 탐색을 다 했는데도 매칭이 안됐으면 GT에 매칭되는게 없는것으로 판정, GT를 삭제하고 FN 카운트
+            matching_df.drop([matched_row], inplace=True)
+            FN += 1
+    FP += matching_df.shape[1]
+    TP = origin_df.shape[0] - FN
+    print("FN {}, FP {}, TP {}".format(FN, FP, TP))
+    return ()
 
-    # print(len(matching_df.columns.values))
-    # print(len(matching_df))
 
 
 def matching_GT_output(result_frame):
@@ -136,4 +155,19 @@ if __name__ == '__main__':
 
         result['my_IOU'][i] = my_IOU_unit
         result['IOU_gap'][i] = IOU_gap_unit
-    # result.to_csv("test3.csv")
+    # result.to_csv("test.csv")
+
+
+
+###################################
+# matched_row = matching_df.astype(float).idxmax(axis=1).index.values[0]  # 기준 GT
+# matched_col = matching_df.astype(float).idxmax(axis=1).values[0]  # 기준 GT에 대해 가장 큰 iou를 가진 output
+# matched_key = matching_df[matched_col].astype(float).idxmax()  # 기준 GT에 대해 가장 큰 iou를 가진 output 기준 가장 큰 iou를 가진 GT
+#
+# matching_df[matching_df.columns.values[0]].iloc[1] = 0.3
+# matching_df[matching_df.columns.values[0]].iloc[2] = 0.2
+#
+# matching_df[matching_df.columns.values[1]].iloc[0] = 0.3
+# matching_df[matching_df.columns.values[1]].iloc[2] = 0.1
+# matching_df[matching_df.columns.values[2]].iloc[0] = 0.4
+# matching_df[matching_df.columns.values[2]].iloc[1] = 0.1
