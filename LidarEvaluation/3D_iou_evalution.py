@@ -6,6 +6,11 @@ from scipy.spatial import ConvexHull
 from numpy import *
 import pandas as pd
 import iou
+import warnings
+warnings.filterwarnings(action='ignore') # pandas append함수 concat으로 쓰라는 warning 무시
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
 
 # row 생략 없이 출력
 pd.set_option('display.max_rows', None)
@@ -72,14 +77,18 @@ def make_IOU_df(IOU_path_):
         IOU_result.loc[i] = IOU_files_[i].split('.')[0], IOU_datas
     return IOU_result
 
+def get_class_from_str(input):
+    print(input.split(',')[8].replace('\\n', '').replace('\'', '').replace(']', ''))
+
 def sort_matchin_GT_output(matching_df):
     origin_df = matching_df.copy()
     FN = 0
     FP = 0
-    print(matching_df)
+    matched_row = -1
+    matched_col = -2
+    matched_key = -3
+    # print(matching_df)
     for i in range(origin_df.shape[0]): # 행개수(gt개수) 만큼 반복
-        matched_row = -1
-        matched_col = -2
         Nlarge_i = 1
         while(matching_df.shape[1] > Nlarge_i - 1 ):
             matched_row = matching_df.astype(float).apply(lambda row: row.nlargest(Nlarge_i),axis=1).index[0] # 기준 GT
@@ -87,23 +96,25 @@ def sort_matchin_GT_output(matching_df):
             # 기준 GT에 대해 가장 큰 iou를 가진 output
             matched_key = matching_df[matching_df.astype(float).apply(lambda row: row.nlargest(Nlarge_i).index.values[Nlarge_i-1],axis=1)
                   .loc[matching_df.astype(float).apply(lambda row: row.nlargest(Nlarge_i),axis=1).index[0]]].astype(float).idxmax()# 기준 GT에 대해 가장 큰 iou를 가진 output 기준 가장 큰 iou를 가진 GT
-            if matched_row == matched_key: break # 가장 큰 iou가 잘 매칭되면 끝
+
+            if matched_row == matched_key and get_class_from_str(matched_row) == get_class_from_str(matched_col): break # 가장 큰 iou가 잘 매칭되면 끝
             Nlarge_i += 1
-        if matched_row == matched_key:
-            if matching_df[matched_col][matched_row] < 0.5: # 매칭됐는데도 불구하고 기준 iou보다 낮으면 fail.
-                FP += 1;FN += 1
+        if matched_row == matched_key: # 서로 잘 매칭 됐으면 매칭된 거 삭제하기
+            if matching_df[matched_col][matched_row] < 0.5: # 매칭 됐는데도 불구하고 기준 iou보다 낮으면 fail.
+                FP += 1; FN += 1
             matching_df.drop([matched_row], inplace=True)
             matching_df.drop([matched_col], axis='columns', inplace=True)
-        elif matching_df.shape[1] == 0:
+        elif matching_df.shape[1] == 0: # GT는 아직 남아있는데, output이 없는 경우 FN에 남는 GT만큼 추가시키고, GT 모두 삭제
             FN += matching_df.shape[0]
             matching_df.drop(matching_df.index.values, inplace=True)
             break
         else: # 탐색을 다 했는데도 매칭이 안됐으면 GT에 매칭되는게 없는것으로 판정, GT를 삭제하고 FN 카운트
             matching_df.drop([matched_row], inplace=True)
             FN += 1
-    FP += matching_df.shape[1]
-    TP = origin_df.shape[0] - FN
+    FP += matching_df.shape[1] # 남은 output은 FP로 판정
+    TP = origin_df.shape[0] - FN # 본래 GT에서 FN을 빼면 TP
     print("FN {}, FP {}, TP {}".format(FN, FP, TP))
+
     return ()
 
 
@@ -125,9 +136,9 @@ def matching_GT_output(result_frame):
 if __name__ == '__main__':
     # output_path = select_folder("평가 결과가 모여져 있는 폴더")
     # GT_path = select_folder("GT 폴더")
-    GT_path = "C:\\Users\\jcy37\\Desktop\\과제\\3D High resolution 라이다\\라이다 평가 Tool sw 개발\\sunny[seoul robotics]\\south_to_west\\label"
-    output_path = "C:\\Users\\jcy37\\Desktop\\과제\\3D High resolution 라이다\\라이다 평가 Tool sw 개발\\sunny[seoul robotics]\\output\\objects"
-    IOU_path = "C:\\Users\\jcy37\\Desktop\\과제\\3D High resolution 라이다\\라이다 평가 Tool sw 개발\\sunny[seoul robotics]\\evaluation\\iou"
+    GT_path = "C:\\Users\\jcy37\\Downloads\\label"
+    output_path = "C:\\Users\\jcy37\\Downloads\\objects"
+    IOU_path = "C:\\Users\\jcy37\\Downloads\\iou"
 
     output_files = os.listdir(output_path)
     result = pd.merge(make_GT_df(GT_path_=GT_path), make_output_df(output_path_=output_path), on="filename", how="outer")
