@@ -160,7 +160,6 @@ def evaluate_IoU(bbox_gt, bbox_output, IoU_Criterion):
     # bbox: center x, center y, bottom z, size x, size y, size z, yaw [deg]
     id_gt, x_gt, y_gt, z_gt, sx_gt, sy_gt, sz_gt, yaw_gt, obj_cls_gt = expand_bbox(bbox_gt)
     id_output, x_output, y_output, z_output, sx_output, sy_output, sz_output, yaw_output, obj_cls_output = expand_bbox(bbox_output)
-
     # rectangle: center x, center y, size x, size y, yaw [deg]
     rectangle_gt = (x_gt, y_gt, sx_gt, sy_gt, yaw_gt)
     rectangle_output = (x_output, y_output, sx_output, sy_output, yaw_output)
