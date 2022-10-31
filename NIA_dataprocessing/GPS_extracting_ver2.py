@@ -3,7 +3,7 @@ import pandas as pd
 import csv
 
 def function():
-    root_path = "F:\\20220802 1cycle sample\\20220802_110747\\20220802_110747\\"
+    root_path = "I:\\20220802_1cycle_sample\\20220802_110747\\20220802_110747\\"
     match = open(root_path + "PCD\\20220802_110747_match_list.txt")
     lidar_tick = []
     lines = match.readlines()
@@ -45,15 +45,14 @@ def function():
 
                 latitude = float(GPRMC.split(',')[3])
                 latitude_1 = int(latitude/100)
-                latitude_2 = int(latitude - latitude_1 * 100)/60
-                latitude_3 = (latitude - latitude_1 * 100 - latitude_2 * 60) * 100 / 3600
-                latitude = latitude_1 + latitude_2 + latitude_3
+                latitude_2 = (latitude - latitude_1 * 100)/60
+                print(latitude - latitude_1 * 100, latitude_1, latitude_2)
+                latitude = latitude_1 + latitude_2
 
                 longitude = float(GPRMC.split(',')[5])
                 longitude_1 = int(longitude/100)
-                longitude_2 = int(longitude - longitude_1 * 100)/60
-                longitude_3 = (longitude - longitude_1 * 100 - longitude_2 * 60) * 100 / 3600
-                longitude = longitude_1 + longitude_2 + longitude_3
+                longitude_2 = (longitude - longitude_1 * 100)/60
+                longitude = longitude_1 + longitude_2
 
                 speed = float(GPRMC.split(',')[7]) * 1.852 # knote to Km/h
                 heading = float(GPRMC.split(',')[8])
@@ -69,6 +68,8 @@ def function():
                 wr.writerow([format(time, '.3f'), format(latitude,'.8f'), format(longitude,'.8f'), format(altitude,'.2f'), format(speed,'.2f'),
                              format(heading,'.2f'), format(roll,'.2f'), format(pitch,'.2f'),yaw])
                 CSV.close()
+                print(GPRMC, latitude, longitude)
+                exit(1)
                 f.readline()
                 cnt += 1
     match.close()
