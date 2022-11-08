@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection, Line3DCollection
 import math
 import gc
+import ThreeD_IoU_Python
+
 # row 생략 없이 출력
 pd.set_option('display.max_rows', None)
 # col 생략 없이 출력
@@ -233,11 +235,17 @@ if __name__ == '__main__':
         elif type(result["GT"][i]) is float: # output만 있고 GT는 없는 경우
             pass
         else:
-            print (matching_GT_output(result.loc[i]))
+            # print (matching_GT_output(result.loc[i]))
             for j in range(len(result["IOU"][i])):
                 GT_obj = result['GT'][i][j]
                 output_obj = result['output'][i][j]
-                IoU_3D, flag_detected = iou.evaluate_IoU(GT_obj, output_obj, 0.5)
+                # IoU_3D, flag_detected = iou.evaluate_IoU(GT_obj, output_obj, 0.5)
+                corners_3d_ground = ThreeD_IoU_Python.get_3d_box((GT_obj[4], GT_obj[5], GT_obj[6]), GT_obj[7],
+                                             (GT_obj[1], GT_obj[2], GT_obj[3]))
+                corners_3d_predict = ThreeD_IoU_Python.get_3d_box((output_obj[4], output_obj[5], output_obj[6]), output_obj[7],
+                                             (output_obj[1], output_obj[2], output_obj[3]))
+                IoU_3D, _ = ThreeD_IoU_Python.box3d_iou(corners_3d_ground, corners_3d_predict)
+                print(IoU_3D)
                 my_IOU_unit.append('{0:0.3f}'.format(IoU_3D))
                 if result["IOU"][i][j] == '':
                     IOU_gap_unit.append('{0:0.3f}'.format(abs(IoU_3D - 0)))
@@ -246,7 +254,7 @@ if __name__ == '__main__':
 
         result['my_IOU'][i] = my_IOU_unit
         result['IOU_gap'][i] = IOU_gap_unit
-    # result.to_csv("test.csv")
+    result.to_csv("old version test.csv")
 
 
 
