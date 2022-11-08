@@ -62,12 +62,13 @@ def rectangle_vertices(cx, cy, w, h, r):
     )
 
 def intersection_area_xy(r1, r2):
+    print(r1,r2)
     # r1 and r2 are in (center, width, height, rotation) representation
     # First convert these into a sequence of vertices
 
     rect1 = rectangle_vertices(*r1)
     rect2 = rectangle_vertices(*r2)
-
+    print(rect1, rect2)
     # Use the vertices of the first rectangle as
     # starting vertices of the intersection polygon.
     intersection = rect1
@@ -169,15 +170,18 @@ def evaluate_IoU(bbox_gt, bbox_output, IoU_Criterion):
     height_output = (z_output, sz_output)
     area_gt = calculate_area(rectangle_gt)
     area_output = calculate_area(rectangle_output)
+    print(area_output, area_gt)
 
     height_intersection = intersection_height_z(height_gt,height_output)
+    print(height_gt, height_output, height_intersection)
     area_intersection = intersection_area_xy(rectangle_gt, rectangle_output)
-
+    print(area_intersection)
     IoU_2D = calculate_2d_IoU(area_gt, area_output, area_intersection)
 
     volume_gt = area_gt*sz_gt
     volume_output = area_output*sz_output
     volume_intersection = area_intersection * height_intersection
+    print(volume_gt, volume_output, volume_intersection)
     
     IoU_3D = calculate_3d_IoU(volume_gt, volume_output, volume_intersection)
     '''
@@ -187,7 +191,7 @@ def evaluate_IoU(bbox_gt, bbox_output, IoU_Criterion):
         flag_detected = True
     else:
         flag_detected = False
-
+    print(IoU_3D)
     
     return IoU_3D, flag_detected
 
