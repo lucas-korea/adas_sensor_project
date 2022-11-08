@@ -8,9 +8,23 @@ from PIL import ImageTk
 from functools import partial
 import numpy as np
 import PCD2PNG
-
+import PCD2PNG_hkl
 BUTTONWORK = False
 
+def select_file(str_ = "파일을 선택 해주세요"):
+    files = filedialog.askopenfilenames(initialdir=os.getcwd(),
+                                        title=str_,
+                                        filetypes=(("*.pcd", "*pcd"), ("*.txt", "*txt"), ("*.xls", "*xls"), ("*.csv", "*csv")))
+    if files == '':
+        print("파일을 추가 하세요")
+        messagebox.showwarning("경고", "파일을 추가 하세요")  # 파일 선택 안했을 때 메세지 출력
+        exit(1)
+    dir_path = [0 for i in range(len(files))]
+    file_list = [0 for i in range(len(files))]
+    for i in range(len(files)):
+        dir_path[i] = ("\\".join(list(files)[i].split("/")[: -1]))  # path 추출
+        file_list[i] = ("\\".join(list(files)[i].split("/"))) #path\\파일명 추출
+    return file_list, dir_path
 
 def draw_ROI( bbox_x1, bbox_y1, bbox_x2, bbox_y2, crop_x1, crop_x2, resize_ratio):
     global ref_png,range_png, RefLidarImage, RangeLidarImage
@@ -81,7 +95,7 @@ def RestoreImg():
     Rangetext.delete("1.0", "end")
 
 
-range_png, ref_png, ref_realLike_png = PCD2PNG.MakePCDimg("I:\\20220802_1cycle_sample\\20220802_110924\\20220802_110924\\PCDmatched\\220802_110924_0001_H.pcd")
+range_png, ref_png, ref_realLike_png = PCD2PNG_hkl.MakePCDimg("E:\\wwww_bin.pcd")
 
 ref_realLike_png = cv2.applyColorMap(ref_realLike_png, cv2.COLORMAP_JET)
 
