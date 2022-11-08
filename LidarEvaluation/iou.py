@@ -62,19 +62,23 @@ def rectangle_vertices(cx, cy, w, h, r):
     )
 
 def intersection_area_xy(r1, r2):
-    print(r1,r2)
+    print("r1,r2 : ",r1,r2)
     # r1 and r2 are in (center, width, height, rotation) representation
     # First convert these into a sequence of vertices
-
     rect1 = rectangle_vertices(*r1)
     rect2 = rectangle_vertices(*r2)
-    print(rect1, rect2)
+    print("rect1, rect2:", rect1, rect2)
+    print("rect1[0].x, rect1[0].y", rect1[0].x, rect1[0].y)
     # Use the vertices of the first rectangle as
     # starting vertices of the intersection polygon.
     intersection = rect1
 
     # Loop over the edges of the second rectangle
     for p, q in zip(rect2, rect2[1:] + rect2[:1]):
+        print(rect2[1:])
+        print(rect2[:1])
+        print("rect2[1:]+ rect2[:1] : ",rect2[1:]+rect2[:1])
+        print("p, q : ", p, q)
         if len(intersection) <= 2:
             break # No intersection
 
@@ -151,6 +155,7 @@ def expand_bbox(bbox_data):
     return bbox_data[0], bbox_data[1], bbox_data[2], bbox_data[3],\
            bbox_data[4], bbox_data[5], bbox_data[6], bbox_data[7], bbox_data[8]
 
+import numpy as np
 def evaluate_IoU(bbox_gt, bbox_output, IoU_Criterion):
     IoU = IoU_Criterion
     '''
@@ -162,26 +167,27 @@ def evaluate_IoU(bbox_gt, bbox_output, IoU_Criterion):
     id_gt, x_gt, y_gt, z_gt, sx_gt, sy_gt, sz_gt, yaw_gt, obj_cls_gt = expand_bbox(bbox_gt)
     id_output, x_output, y_output, z_output, sx_output, sy_output, sz_output, yaw_output, obj_cls_output = expand_bbox(bbox_output)
     # rectangle: center x, center y, size x, size y, yaw [deg]
-    rectangle_gt = (x_gt, y_gt, sx_gt, sy_gt, yaw_gt)
-    rectangle_output = (x_output, y_output, sx_output, sy_output, yaw_output)
+    rectangle_gt = (np.float64(x_gt), np.float64(y_gt), np.float64(sx_gt), np.float64(sy_gt), np.float64(yaw_gt))
+    print("np.float64(sx_gt)* np.float64(sy_gt):", np.float64(sx_gt)* np.float64(sy_gt))
+    rectangle_output = (np.float64(x_output), np.float64(y_output), np.float64(sx_output), np.float64(sy_output), np.float64(yaw_output))
 
     # height: bottom z, size z
     height_gt = (z_gt, sz_gt)
     height_output = (z_output, sz_output)
     area_gt = calculate_area(rectangle_gt)
     area_output = calculate_area(rectangle_output)
-    print(area_output, area_gt)
+    print("area_output, area_gt : ", area_output, area_gt)
 
     height_intersection = intersection_height_z(height_gt,height_output)
-    print(height_gt, height_output, height_intersection)
+    print("height_gt, height_output, height_intersection : ", height_gt, height_output, height_intersection)
     area_intersection = intersection_area_xy(rectangle_gt, rectangle_output)
-    print(area_intersection)
+    print("area_intersection : ", area_intersection, type(area_intersection))
     IoU_2D = calculate_2d_IoU(area_gt, area_output, area_intersection)
 
     volume_gt = area_gt*sz_gt
     volume_output = area_output*sz_output
     volume_intersection = area_intersection * height_intersection
-    print(volume_gt, volume_output, volume_intersection)
+    print("volume_gt, volume_output, volume_intersection : ",volume_gt, volume_output, volume_intersection)
     
     IoU_3D = calculate_3d_IoU(volume_gt, volume_output, volume_intersection)
     '''
@@ -191,7 +197,9 @@ def evaluate_IoU(bbox_gt, bbox_output, IoU_Criterion):
         flag_detected = True
     else:
         flag_detected = False
-    print(IoU_3D)
+    print("IoU_3D:", IoU_3D)
+    if IoU_3D > 1.03:
+        exit(1)
     
     return IoU_3D, flag_detected
 

@@ -33,10 +33,10 @@ def parsing_binPCD2asciiPCD(PCD, size_list, type_list, count_list, colrow):
     for row in range(56):
         for col in range(384):
             #pixel에 1:1 매칭이 되는 이미지
-            print(pack_str, byte_len, PCD[start: start + byte_len])
+            # print(pack_str, byte_len, PCD[start: start + byte_len])
             scalar_fileds = struct.unpack(pack_str, PCD[start: start + byte_len])  # B:부호없는 정수, c:문자
-            Depth_img[row, col] = 3*np.sqrt(scalar_fileds[0]*scalar_fileds[0] + scalar_fileds[1]*scalar_fileds[1] + scalar_fileds[2]*scalar_fileds[2])
-            intensity_img[row, col] = (scalar_fileds[4] + scalar_fileds[5] + scalar_fileds[6])/3
+            Depth_img[row, col] = np.sqrt(scalar_fileds[0]*scalar_fileds[0] + scalar_fileds[1]*scalar_fileds[1] + scalar_fileds[2]*scalar_fileds[2]) * 10
+            intensity_img[row, col] = (scalar_fileds[4] + scalar_fileds[5] + scalar_fileds[6])/3 /2
             start = start + byte_len
             # print(scalar_fileds)
     return Depth_img, intensity_img, intensity_img_realLike

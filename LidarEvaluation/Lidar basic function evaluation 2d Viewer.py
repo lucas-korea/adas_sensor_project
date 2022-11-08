@@ -11,20 +11,7 @@ import PCD2PNG
 import PCD2PNG_hkl
 BUTTONWORK = False
 
-def select_file(str_ = "파일을 선택 해주세요"):
-    files = filedialog.askopenfilenames(initialdir=os.getcwd(),
-                                        title=str_,
-                                        filetypes=(("*.pcd", "*pcd"), ("*.txt", "*txt"), ("*.xls", "*xls"), ("*.csv", "*csv")))
-    if files == '':
-        print("파일을 추가 하세요")
-        messagebox.showwarning("경고", "파일을 추가 하세요")  # 파일 선택 안했을 때 메세지 출력
-        exit(1)
-    dir_path = [0 for i in range(len(files))]
-    file_list = [0 for i in range(len(files))]
-    for i in range(len(files)):
-        dir_path[i] = ("\\".join(list(files)[i].split("/")[: -1]))  # path 추출
-        file_list[i] = ("\\".join(list(files)[i].split("/"))) #path\\파일명 추출
-    return file_list, dir_path
+
 
 def draw_ROI( bbox_x1, bbox_y1, bbox_x2, bbox_y2, crop_x1, crop_x2, resize_ratio):
     global ref_png,range_png, RefLidarImage, RangeLidarImage
@@ -95,7 +82,7 @@ def RestoreImg():
     Rangetext.delete("1.0", "end")
 
 
-range_png, ref_png, ref_realLike_png = PCD2PNG_hkl.MakePCDimg("E:\\wwww_bin.pcd")
+range_png, ref_png, ref_realLike_png = PCD2PNG_hkl.MakePCDimg("C:\\Users\\jcy37\\Downloads\\distance_hkl_bin.pcd")
 
 ref_realLike_png = cv2.applyColorMap(ref_realLike_png, cv2.COLORMAP_JET)
 
@@ -110,7 +97,7 @@ ref_img = Image.fromarray(ref_img) #cv2 포맷을 tkinter가 읽을 수 있는 �
 ref_imgtk = ImageTk.PhotoImage(image=ref_img)
 RefLidarImage = tkinter.Label(window, image=ref_imgtk)
 RefLidarImage.place(x=0,y=0)
-tkinter.Label(window, text="intensity").place(x=range_png.shape[1]+20,y=60)
+tkinter.Label(window, text="intensity").place(x=range_png.shape[1]+420,y=60)
 
 range_png_origin = range_png.copy()
 range_png = cv2.applyColorMap(range_png, cv2.COLORMAP_JET)
@@ -119,7 +106,7 @@ range_img = Image.fromarray(range_img) #cv2 포맷을 tkinter가 읽을 수 있�
 range_imgtk = ImageTk.PhotoImage(image=range_img)
 RangeLidarImage = tkinter.Label(window, image=range_imgtk)
 RangeLidarImage.place(x=0,y=128)
-tkinter.Label(window, text="range").place(x=range_png.shape[1]+20,y=180)
+tkinter.Label(window, text="range").place(x=range_png.shape[1]+420,y=180)
 
 
 
