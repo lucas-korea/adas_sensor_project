@@ -202,6 +202,12 @@ VROI = [-22.5, +22.5] # 60분법 각도
 HROI = [0, 360]
 MINIMUM_SIZE_X = 0
 MINIMUM_SIZE_Y = 0
+VROI[0] = float(input("Minimun Vertical ROI [degree] :: "))
+VROI[1] = float(input("Maximum Vertical ROI [degree] :: "))
+HROI[0] = float(input("Minimun Horizontal ROI [degree] :: "))
+HROI[1] = float(input("Maximum Horizontal ROI [degree] :: "))
+MINIMUM_SIZE_X = float(input("MINIMUM_SIZE_X [meter] :: "))
+MINIMUM_SIZE_Y = float(input("MINIMUM_SIZE_Y [meter] :: "))
 
 # object가 ROI에 해당하는지, 최소 사이즈 이상인지 TorF 판단
 def chekc_isin_ROI(obj):
@@ -220,10 +226,11 @@ def chekc_isin_ROI(obj):
 
 file_len = 0
 if __name__ == '__main__':
-
+    output_path = select_folder("평가 결과가 모여져 있는 폴더")
+    GT_path = select_folder("GT 폴더")
     sum_TP_FP_FN = [0,0,0]
-    GT_path = "C:\\Users\\jcy37\\Desktop\\과제\\3D High resolution 라이다\\라이다 평가 Tool sw 개발\\2022_11_07_14_27_04_920\\2022_11_07_14_27_04_920\\label"
-    output_path = "C:\\Users\\jcy37\\Desktop\\과제\\3D High resolution 라이다\\라이다 평가 Tool sw 개발\\2022_11_07_14_27_04_920\\2022_11_07_14_27_04_920\\result"
+    # GT_path = "C:\\Users\\jcy37\\Desktop\\과제\\3D High resolution 라이다\\라이다 평가 Tool sw 개발\\2022_11_07_14_27_04_920\\2022_11_07_14_27_04_920\\label"
+    # output_path = "C:\\Users\\jcy37\\Desktop\\과제\\3D High resolution 라이다\\라이다 평가 Tool sw 개발\\2022_11_07_14_27_04_920\\2022_11_07_14_27_04_920\\result"
     output_files = os.listdir(output_path)
     file_len = len(output_files)
     result = pd.merge(make_GT_df(GT_path_=GT_path), make_output_df(output_path_=output_path), on="filename", how="outer")
