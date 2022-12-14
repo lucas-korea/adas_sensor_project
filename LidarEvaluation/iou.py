@@ -189,6 +189,8 @@ def evaluate_IoU(bbox_gt, bbox_output, IoU_Criterion):
         flag_detected = True
     else:
         flag_detected = False
-    
+
+    if IoU_3D >= 1.0:
+        return 1.000000000, flag_detected
     return IoU_3D, flag_detected
 
