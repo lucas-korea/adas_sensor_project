@@ -13,7 +13,10 @@ ouster 각도 지정에 있어서 문제 있었던 부분이 있었음 -> 해결
 round 함수를 np.round로 대체하여 속도를 1/4로 줄임
 
 ver4: 0830 수정중 파일명 '정제'-> 'pcd추출'로 변경
+
 ver4.1 : find_start() 129.375도에서 0도로 수정
+** NIA4차 기간을 거치면서 많이 오염됨
+
 ver5: 20220715 ouster firmware upgrade로 인해 ref_byte 부분 수정
 np.round 수정
 좌표축 진행방향을 +x로 수정
@@ -22,6 +25,7 @@ rm_zero() 불용
 라이다별 내부 파라미터 분리 적용 ( .bin 파일 마지막 스펠링 L or R 로 구분)
 취득 데이터 변화로 인해, packet 읽는 크기 수정 (main()  함수)
 지그 음영지역 데이터 삭제 코드 추가 parsing_packet()
+
 ver5.1
 pcd 이어붙히는 부분 차량 후방(=degree 0)으로 수정. 지그 음영에 접합부 숨기기 위해.
 crop_zig_shade() 함수 삽입
@@ -37,3 +41,11 @@ ver6.0
 
 ver6a
 ver6.0에서, 맨윗 채널 삭제 코드 제외(ver5.2 내용)
+
+ver6b
+NIA3차 데이터를 연구용으로 쓰기 위한 코드. ver4.1에서 수정
+rm_zero_point() 불용
+zig_shade() 삭제
+f.read(50) -> f.read(48)
+low resolution lidar 고려한 코드 삭제
+2도 조정한거 삭제
