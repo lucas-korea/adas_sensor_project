@@ -35,10 +35,35 @@ def distribute_polarize_img_4chImg(polar_image):
             image0_[i, j] = sum(polar_image[i * 2 + 1, j * 2 + 1]) / len(polar_image[i * 2, j * 2])
     return image90_, image45_, image135_, image0_
 
+def bayerRGpolarize8_RGB_distribute(polar_image):
+    height_ = polar_image.shape[0]
+    length_ = polar_image.shape[1]
+    print(height_, length_)
+    original = np.zeros((int(height_/4), int(length_/4) , 3), dtype=np.uint8)
+    RedImg_ = np.zeros((int(height_/4), int(length_/4)), dtype=np.uint8)
+    GreenImg_ = np.zeros((int(height_/4), int(length_/4)), dtype=np.uint8)
+    BlueImg_ = np.zeros((int(height_/4), int(length_/4)), dtype=np.uint8)
+    for i in range(int(height_/4)):
+        for j in range(int(length_/4)):
+            RedImg_[i,j] = int(polar_image[i * 4, j * 4]/4 + polar_image[i * 4 + 1, j * 4]/4 + polar_image[i * 4, j * 4 + 1]/4 + polar_image[i * 4 + 1, j * 4 + 1]/4)
+            GreenImg_[i, j] = int(polar_image[i * 4 + 2, j * 4]/8 + polar_image[i * 4 + 2 + 1, j * 4]/8 + polar_image[i * 4 + 2, j * 4 + 1]/8 + polar_image[i * 4 + 2 + 1, j * 4 + 1]/8
+                                  +polar_image[i * 4, j * 4 + 2]/8 + polar_image[i * 4 + 1, j * 4 + 2]/8 + polar_image[i * 4, j * 4 + 2 + 1]/8 + polar_image[i * 4 + 1, j * 4 + 2 + 1]/8)
+            BlueImg_[i,j] = int(polar_image[i * 4 + 2, j * 4 + 2]/4 + polar_image[i * 4 + 2 + 1, j * 4 + 2]/4 + polar_image[i * 4 + 2, j * 4 + 2 + 1]/4 + polar_image[i * 4 + 2 + 1, j * 4 + 2 + 1]/4)
+    original[:, :, 0] = RedImg_
+    original[:, :, 1] = GreenImg_
+    original[:, :, 2] = BlueImg_
+
+    plt.subplot(141);plt.title("original");plt.axis('off');plt.imshow(original);plt.xticks([]); plt.yticks([])
+    plt.subplot(142);plt.title("RedImg");plt.axis('off');plt.imshow(RedImg_, cmap='gray');plt.xticks([]); plt.yticks([])
+    plt.subplot(143);plt.title("GreenImg");plt.axis('off');plt.imshow(GreenImg_, cmap='gray');plt.xticks([]); plt.yticks([])
+    plt.subplot(144);plt.title("BlueImg");plt.axis('off');plt.imshow(BlueImg_, cmap='gray');plt.xticks([]); plt.yticks([])
+    plt.subplots_adjust(left = 0, bottom = 0, right = 1, top = 0.85, hspace = 0.1, wspace =0.1)
+    return RedImg_, GreenImg_, BlueImg_
 
 def distribute_RGBplus(polar_image):
     height_ = polar_image.shape[0]
     length_ = polar_image.shape[1]
+    print(height_, length_)
     RedImg_ = np.zeros((height_, length_), dtype=np.uint8)
     GreenImg_ = np.zeros((height_, length_), dtype=np.uint8)
     BlueImg_ = np.zeros((height_, length_), dtype=np.uint8)
@@ -196,11 +221,11 @@ def DOLPplusAOLP(polar_img):
     return cv2.cvtColor(result_img_.astype("uint8"), cv2.COLOR_HSV2RGB), DOLP_img_, AOLP_img_, HSV_color_mapping(AOLP_img_)
 
 if __name__ == "__main__":
-    img_path = "I:\\20220825_cheonan_polarize_target_experiment\\bright63_raw_bayerRGpolarized8.bmp"
+    img_path = "C:\\Users\\jcy37\\Desktop\\bayerRGpolarize8_raw_color chart.bmp"
     img = cv2.imread(img_path, -1)
     print(img.shape)
-    polar_analysis(img, img_path)
-    plt.savefig(img_path.split('\\')[-1].split('.')[0] + '.png', facecolor='#eeeeee', pad_inches=0.5, dpi=300)
+    bayerRGpolarize8_RGB_distribute(img)
+    # plt.savefig(img_path.split('\\')[-1].split('.')[0] + '.png', facecolor='#eeeeee', pad_inches=0.5, dpi=300)
     plt.show()
 
 
