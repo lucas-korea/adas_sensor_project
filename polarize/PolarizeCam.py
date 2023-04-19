@@ -3,6 +3,7 @@ import os
 import matplotlib.pyplot as plt
 import cv2
 import numpy as np
+import time
 
 def distribute_polarize_img(polar_image):
     height_ = polar_image.shape[0]
@@ -58,7 +59,7 @@ def bayerRGpolarize8_RGB_distribute(polar_image):
     plt.subplot(143);plt.title("GreenImg");plt.axis('off');plt.imshow(GreenImg_, cmap='gray');plt.xticks([]); plt.yticks([])
     plt.subplot(144);plt.title("BlueImg");plt.axis('off');plt.imshow(BlueImg_, cmap='gray');plt.xticks([]); plt.yticks([])
     plt.subplots_adjust(left = 0, bottom = 0, right = 1, top = 0.85, hspace = 0.1, wspace =0.1)
-    return RedImg_, GreenImg_, BlueImg_
+    return original, RedImg_, GreenImg_, BlueImg_
 
 def distribute_RGBplus(polar_image):
     height_ = polar_image.shape[0]
@@ -90,13 +91,12 @@ def polar_analysis(polar_image_gray, img_path_):
     plt.subplots_adjust(left=0, bottom=0, right=1, top=0.85, hspace=0.1, wspace=0.1)
 
 def color_analysis(polarize_img, img_path_):
-    RedImg, GreenImg, BlueImg, PlusImg = distribute_RGBplus(polarize_img)
+    OriginImg, RedImg, GreenImg, BlueImg= bayerRGpolarize8_RGB_distribute(polarize_img)
     plt.suptitle(img_path_.split('\\')[-1],fontsize=20)
-    plt.subplot(231);plt.title("original");plt.axis('off');plt.imshow(polarize_img[:,:,::-1]);plt.xticks([]); plt.yticks([])
-    plt.subplot(232);plt.title("RedImg");plt.axis('off');plt.imshow(RedImg, cmap='gray');plt.xticks([]); plt.yticks([])
-    plt.subplot(233);plt.title("GreenImg");plt.axis('off');plt.imshow(GreenImg, cmap='gray');plt.xticks([]); plt.yticks([])
-    plt.subplot(235);plt.title("BlueImg");plt.axis('off');plt.imshow(BlueImg, cmap='gray');plt.xticks([]); plt.yticks([])
-    plt.subplot(236);plt.title("PlusImg");plt.axis('off');plt.imshow(PlusImg, cmap='gray');plt.xticks([]); plt.yticks([])
+    plt.subplot(141);plt.title("original");plt.axis('off');plt.imshow(OriginImg);plt.xticks([]); plt.yticks([])
+    plt.subplot(142);plt.title("RedImg");plt.axis('off');plt.imshow(RedImg, cmap='gray');plt.xticks([]); plt.yticks([])
+    plt.subplot(143);plt.title("GreenImg");plt.axis('off');plt.imshow(GreenImg, cmap='gray');plt.xticks([]); plt.yticks([])
+    plt.subplot(144);plt.title("BlueImg");plt.axis('off');plt.imshow(BlueImg, cmap='gray');plt.xticks([]); plt.yticks([])
     plt.subplots_adjust(left = 0, bottom = 0, right = 1, top = 0.85, hspace = 0.1, wspace =0.1)
 
 
@@ -221,13 +221,28 @@ def DOLPplusAOLP(polar_img):
     return cv2.cvtColor(result_img_.astype("uint8"), cv2.COLOR_HSV2RGB), DOLP_img_, AOLP_img_, HSV_color_mapping(AOLP_img_)
 
 if __name__ == "__main__":
-    img_path = "C:\\Users\\jcy37\\Desktop\\bayerRGpolarize8_raw_color chart.bmp"
-    img = cv2.imread(img_path, -1)
-    print(img.shape)
-    bayerRGpolarize8_RGB_distribute(img)
-    # plt.savefig(img_path.split('\\')[-1].split('.')[0] + '.png', facecolor='#eeeeee', pad_inches=0.5, dpi=300)
-    plt.show()
+    for file_name in os.listdir("E:\\polar_acquisition_data\\polar_data_abnormal_tri"):
+        if 'bmp' in file_name or 1:
+            img_path = "E:\\polar_acquisition_data\\polar_data_abnormal_tri\\" + file_name
+            img = cv2.imread(img_path, -1)
+            print(img_path)
+            # polar_analysis(img, img_path)
+            # color_analysis(img, img_path)
+            # plt.savefig(img_path.split('\\')[-1].split('.')[0] + '.png', facecolor='#eeeeee', pad_inches=0.5, dpi=300)
+            # plt.show()
+            # plt.savefig(img_path.split('\\')[-1].split('.')[0] + '.png', facecolor='#eeeeee', pad_inches=0.5, dpi=300)
+            DOLPplusAOLP_img, DOLP_img, AOLP_img, AOLP_hsv_img = DOLPplusAOLP(img)
 
+            plt.figure(2);plt.imshow(AOLP_img)
+            # color_map = cv2.imread("color_map.PNG")
+            plt.figure(1);plt.suptitle(img_path.split('\\')[-1].split('.')[0])
+            plt.subplot(231);plt.imshow(img, cmap='gray');plt.title("Original"); plt.axis('off');plt.xticks([]);plt.yticks([])
+            # plt.subplot(232);plt.imshow(color_map[:,:,::-1]);plt.title("color_map"); plt.axis('off');plt.xticks([]);plt.yticks([])
+            plt.subplot(234);plt.imshow(DOLP_img, cmap='gray');plt.title("DOLP"); plt.axis('off');plt.xticks([]);plt.yticks([])
+            plt.subplot(235);plt.imshow(AOLP_hsv_img);plt.title("AOLP"); plt.axis('off');plt.xticks([]);plt.yticks([])
+            plt.subplot(236);plt.imshow(DOLPplusAOLP_img);plt.title("DOLP+AOLP"); plt.axis('off');plt.xticks([]);plt.yticks([])
+            plt.subplots_adjust(left=0.03, bottom=0.02, right=0.97, top=0.9, hspace=0.1, wspace=0.1)
+            plt.savefig(img_path + '.png', facecolor='#eeeeee', pad_inches=0.5, dpi=300)
 
     # for file_name in os.listdir("I:\\20220825_cheonan_polarize_target_experiment"):
     #     if 'raw_bayerRGp' in file_name:
@@ -248,7 +263,7 @@ if __name__ == "__main__":
     #         plt.subplot(235);plt.imshow(AOLP_hsv_img);plt.title("AOLP"); plt.axis('off');plt.xticks([]);plt.yticks([])
     #         plt.subplot(236);plt.imshow(DOLPplusAOLP_img);plt.title("DOLP+AOLP"); plt.axis('off');plt.xticks([]);plt.yticks([])
     #         plt.subplots_adjust(left=0.03, bottom=0.02, right=0.97, top=0.9, hspace=0.1, wspace=0.1)
-    #         plt.savefig(img_path.split('\\')[-1].split('.')[0] + '.png', facecolor='#eeeeee', pad_inches=0.5, dpi=300)
+    #         plt.savefig(img_path.split('\\')[-1].split('.')[0] + '2.png', facecolor='#eeeeee', pad_inches=0.5, dpi=300)
 
 
 
