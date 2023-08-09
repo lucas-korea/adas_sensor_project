@@ -19,3 +19,4 @@ super_resolution\
 *.pdf
 *.pickle
 *.csv
+*.bmp
