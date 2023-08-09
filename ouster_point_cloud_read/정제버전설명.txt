@@ -48,4 +48,13 @@ rm_zero_point() 불용
 zig_shade() 삭제
 f.read(50) -> f.read(48)
 low resolution lidar 고려한 코드 삭제
-2도 조정한거 삭제
+2도 조정한거 삭제(super resolution이랑 관계 없음)
+
+ver6c
+NIA4차 데이터 연구용 추출을 위해 생성
+ver6a에서 발생. 불필요한 코드 제거 예정
+cal_lidar_pos_32ch(), make_ascii_PCDfile(), re_zero() 삭제
+2도 조정한거 삭제(super resolution이랑 관계 없음)
+parsing_packet()에서 채널 변형, 연구 ppt 참조
+연구를 위해 npy 데이터로 만들자. 다만 확장자는 pcd로
+make_bin_PCDfile(), cal_lidar_pos() 삭제, make_npyfile() 생성, zig 음영부분 제거하는 코드 삽입, 총 100개 columns 삭제

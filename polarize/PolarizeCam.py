@@ -1,9 +1,11 @@
 import os
-
 import matplotlib.pyplot as plt
 import cv2
 import numpy as np
 import time
+import sys
+
+np.set_printoptions(threshold=sys.maxsize)
 
 def distribute_polarize_img(polar_image):
     height_ = polar_image.shape[0]
@@ -20,21 +22,6 @@ def distribute_polarize_img(polar_image):
             image0_[i, j] = polar_image[i * 2 + 1, j * 2 + 1]
     return image90_, image45_, image135_, image0_
 
-
-def distribute_polarize_img_4chImg(polar_image):
-    height_ = polar_image.shape[0]
-    length_ = polar_image.shape[1]
-    image90_ = np.zeros((int(height_/2), int(length_/2)), dtype=np.uint8)
-    image45_ = np.zeros((int(height_/2), int(length_/2)), dtype=np.uint8)
-    image135_ = np.zeros((int(height_/2), int(length_/2)), dtype=np.uint8)
-    image0_ = np.zeros((int(height_/2), int(length_/2)), dtype=np.uint8)
-    for i in range(int(height_ / 2)):
-        for j in range(int(length_ / 2)):
-            image90_[i, j] = sum(polar_image[i * 2, j * 2]) / len(polar_image[i * 2, j * 2])
-            image45_[i, j] = sum(polar_image[i * 2, j * 2 + 1]) / len(polar_image[i * 2, j * 2])
-            image135_[i, j] = sum(polar_image[i * 2 + 1, j * 2]) / len(polar_image[i * 2, j * 2])
-            image0_[i, j] = sum(polar_image[i * 2 + 1, j * 2 + 1]) / len(polar_image[i * 2, j * 2])
-    return image90_, image45_, image135_, image0_
 
 def bayerRGpolarize8_RGB_distribute(polar_image):
     height_ = polar_image.shape[0]
@@ -89,6 +76,7 @@ def polar_analysis(polar_image_gray, img_path_):
     plt.subplot(235);    plt.title("image135");    plt.axis('off');    plt.imshow(image135, cmap='gray');    plt.xticks([]);    plt.yticks([])
     plt.subplot(236);    plt.title("image0");    plt.axis('off');    plt.imshow(image0, cmap='gray');    plt.xticks([]);    plt.yticks([])
     plt.subplots_adjust(left=0, bottom=0, right=1, top=0.85, hspace=0.1, wspace=0.1)
+    return image90, image45, image135, image0
 
 def color_analysis(polarize_img, img_path_):
     OriginImg, RedImg, GreenImg, BlueImg= bayerRGpolarize8_RGB_distribute(polarize_img)
@@ -121,6 +109,18 @@ def AllAngle(polar_image):
             AllAngle_img_[i, j] = (int(polar_image[i * 2, j * 2]) + int(polar_image[i * 2 + 1, j * 2 + 1]) + int(polar_image[i * 2 + 1, j * 2]) + int(polar_image[i * 2, j * 2 + 1])) / 4
     return AllAngle_img_
 
+# 4가지 방향 데이터 중, 가장 값이 작은 데이터를 반사광이 없는 픽셀로 간주
+# 만약 편광 성분이 하나도 없다면, 픽셀간 데이터 차이는 없을 것.
+def Glare_reduction(polar_image):
+    height_ = polar_image.shape[0]
+    length_ = polar_image.shape[1]
+    Glare_reduction_img_ = np.zeros((int(height_ / 2), int(length_ / 2)), dtype=np.float64)
+    for i in range(int(height_ / 2)):
+        for j in range(int(length_ / 2)):
+            Glare_reduction_img_[i, j] = np.min([polar_image[i * 2, j * 2], polar_image[i * 2 + 1, j * 2],
+                                           polar_image[i * 2, j * 2 + 1], polar_image[i * 2 + 1, j * 2 + 1]])
+    return Glare_reduction_img_
+
 # S_0 = I = P_0 + P_90
 def S_0_img(polar_image):
     height_ = polar_image.shape[0]
@@ -128,7 +128,8 @@ def S_0_img(polar_image):
     Szero_img_ = np.zeros((int(height_ / 2), int(length_ / 2)), dtype=np.float64)
     for i in range(int(height_ / 2)):
         for j in range(int(length_ / 2)):
-            Szero_img_[i, j] = float(polar_image[i * 2, j * 2]) + float(polar_image[i * 2 + 1, j * 2 + 1])
+            Szero_img_[i, j] = (float(polar_image[i * 2, j * 2]) + float(polar_image[i * 2 + 1, j * 2 + 1]) +
+                               float(polar_image[i * 2 + 1, j * 2]) + float(polar_image[i * 2 , j * 2 + 1]))/2
     return Szero_img_
 
 
@@ -158,7 +159,15 @@ def DOLP(polar_image):
     Szero_img_ = S_0_img(polar_image)
     Sone_img_ = S_1_img(polar_image)
     Stwo_img_ = S_2_img(polar_image)
+    plt.figure(7);plt.imshow(Szero_img_)
+    plt.figure(8);plt.imshow(Sone_img_)
+    plt.figure(9);plt.imshow(Stwo_img_)
+    print(np.isfinite(Szero_img_).all())
+    print(np.isfinite(Sone_img_).all())
+    print(np.isfinite(Stwo_img_).all())
     DOLP_img_ = np.sqrt(Sone_img_*Sone_img_ + Stwo_img_*Stwo_img_) / Szero_img_
+    DOLP_finite_arr = np.isfinite(DOLP_img_)
+    print(np.where(DOLP_finite_arr == False))
     return DOLP_img_
 
 
@@ -212,38 +221,54 @@ def DOLPplusAOLP(polar_img):
     DOLP_img_ = DOLP(polar_img)
     AOLP_img_ = AOLP(polar_img)
     AOLP_hsv_img_ = cv2.cvtColor(HSV_color_mapping(AOLP_img_), cv2.COLOR_RGB2HSV)
-    max_DOLP_img = np.amax(DOLP_img_)
+    max_DOLP_img = np.nanmax(DOLP_img_)
+    print(AOLP_img_.shape)
+    print(DOLP_img_.shape)
+    print(result_img_.shape)
     for i in range(int(height_/2)):
         for j in range(int(length_/2)):
             result_img_[i, j, 0] = float(AOLP_hsv_img_[i, j, 0])
             result_img_[i, j, 1] = float(DOLP_img_[i, j] * 255 / max_DOLP_img)
             result_img_[i, j, 2] = float(AOLP_hsv_img_[i, j, 2])
+    print(result_img_.shape)
+    plt.figure(4);plt.imshow(result_img_)
+    plt.figure(6);plt.imshow(result_img_.astype('uint8'))
+    plt.figure(5);plt.imshow(DOLP_img_)
+
+    print(result_img_.shape)
+    print(result_img_[0][0][0], result_img_[0][0][1], result_img_[0][0][2])
+    print(DOLP_img_[0][0])
+    print(DOLP_img_[0][0] * 255 / max_DOLP_img)
+    print(DOLP_img_[0][0] * 255)
+    print(max_DOLP_img)
     return cv2.cvtColor(result_img_.astype("uint8"), cv2.COLOR_HSV2RGB), DOLP_img_, AOLP_img_, HSV_color_mapping(AOLP_img_)
 
 if __name__ == "__main__":
-    for file_name in os.listdir("E:\\polar_acquisition_data\\polar_data_abnormal_tri"):
-        if 'bmp' in file_name or 1:
-            img_path = "E:\\polar_acquisition_data\\polar_data_abnormal_tri\\" + file_name
-            img = cv2.imread(img_path, -1)
-            print(img_path)
-            # polar_analysis(img, img_path)
-            # color_analysis(img, img_path)
-            # plt.savefig(img_path.split('\\')[-1].split('.')[0] + '.png', facecolor='#eeeeee', pad_inches=0.5, dpi=300)
-            # plt.show()
-            # plt.savefig(img_path.split('\\')[-1].split('.')[0] + '.png', facecolor='#eeeeee', pad_inches=0.5, dpi=300)
-            DOLPplusAOLP_img, DOLP_img, AOLP_img, AOLP_hsv_img = DOLPplusAOLP(img)
 
-            plt.figure(2);plt.imshow(AOLP_img)
-            # color_map = cv2.imread("color_map.PNG")
-            plt.figure(1);plt.suptitle(img_path.split('\\')[-1].split('.')[0])
-            plt.subplot(231);plt.imshow(img, cmap='gray');plt.title("Original"); plt.axis('off');plt.xticks([]);plt.yticks([])
-            # plt.subplot(232);plt.imshow(color_map[:,:,::-1]);plt.title("color_map"); plt.axis('off');plt.xticks([]);plt.yticks([])
-            plt.subplot(234);plt.imshow(DOLP_img, cmap='gray');plt.title("DOLP"); plt.axis('off');plt.xticks([]);plt.yticks([])
-            plt.subplot(235);plt.imshow(AOLP_hsv_img);plt.title("AOLP"); plt.axis('off');plt.xticks([]);plt.yticks([])
-            plt.subplot(236);plt.imshow(DOLPplusAOLP_img);plt.title("DOLP+AOLP"); plt.axis('off');plt.xticks([]);plt.yticks([])
-            plt.subplots_adjust(left=0.03, bottom=0.02, right=0.97, top=0.9, hspace=0.1, wspace=0.1)
-            plt.savefig(img_path + '.png', facecolor='#eeeeee', pad_inches=0.5, dpi=300)
+    img_path = "C:\\Users\\jcy37\\source\\repos\\Project2\\data\\trigger data\\20230620_151321_232000061_28.bmp"
+    img = cv2.imread(img_path, -1)
+    # img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    polar_analysis(img, img_path)
+    plt.show()
+    # print(img_path)
+    # polar_analysis(img, img_path)
+    # color_analysis(img, img_path)
+    # plt.savefig(img_path.split('\\')[-1].split('.')[0] + '.png', facecolor='#eeeeee', pad_inches=0.5, dpi=300)
+    # plt.show()
+    # plt.savefig(img_path.split('\\')[-1].split('.')[0] + '.png', facecolor='#eeeeee', pad_inches=0.5, dpi=300)
+    # DOLPplusAOLP_img, DOLP_img, AOLP_img, AOLP_hsv_img = DOLPplusAOLP(img)
 
+    # plt.figure(2);plt.imshow(AOLP_img)
+    # # color_map = cv2.imread("color_map.PNG")
+    # plt.figure(1);plt.suptitle(img_path.split('\\')[-1].split('.')[0])
+    # plt.subplot(231);plt.imshow(img, cmap='gray');plt.title("Original"); plt.axis('off');plt.xticks([]);plt.yticks([])
+    # # plt.subplot(232);plt.imshow(color_map[:,:,::-1]);plt.title("color_map"); plt.axis('off');plt.xticks([]);plt.yticks([])
+    # plt.subplot(234);plt.imshow(DOLP_img, cmap='gray');plt.title("DOLP"); plt.axis('off');plt.xticks([]);plt.yticks([])
+    # plt.subplot(235);plt.imshow(AOLP_hsv_img);plt.title("AOLP"); plt.axis('off');plt.xticks([]);plt.yticks([])
+    # plt.subplot(236);plt.imshow(DOLPplusAOLP_img);plt.title("DOLP+AOLP"); plt.axis('off');plt.xticks([]);plt.yticks([])
+    # plt.subplots_adjust(left=0.03, bottom=0.02, right=0.97, top=0.9, hspace=0.1, wspace=0.1)
+    # plt.savefig(img_path + '.png', facecolor='#eeeeee', pad_inches=0.5, dpi=300)
+    # plt.show()
     # for file_name in os.listdir("I:\\20220825_cheonan_polarize_target_experiment"):
     #     if 'raw_bayerRGp' in file_name:
     #         # img_path = "I:\\20220825_cheonan_polarize_target_experiment\\bright255_raw_bayerRG8.bmp"

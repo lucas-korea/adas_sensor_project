@@ -30,3 +30,7 @@ matching_high_low()
            if len(LowLidar_stamp_List[mask_all]):
                 shutil.copy2(lidar_ts_path + '\\' + LowLidarList[mask_all][0], # 순서대로 가져오는것이 아니라, range 안에서 매칭되는 파일을 복사
                              pcd_move_dir + '\\' + '_'.join(LowLidarList[mask_all][0].split('_')[:2])[2:]
+
+research version
+ver2에서 파생
+연구용으로 작성. PCD가 제대로 추출 안되었기 때문에, 따로 다시 추출된 pcd를 matching된 png에 맞게 matched pcd를 뽑아주는 코드.
