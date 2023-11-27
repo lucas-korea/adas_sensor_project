@@ -99,20 +99,11 @@ def main():
     print(lidar_list_dir_path, files)
     with open(list(files)[0], 'r') as lidar_f:
         lidar_file_list = lidar_f.readlines()
-    with open("Z:\\2022 NIA 49-1 superresolution raw data\\fixed research data\\esencial_list.txt") as essential:
-        essential_list = essential.readlines()
-    for i in range(len(essential_list)):
-        essential_list[i] = essential_list[i].replace('\n', '')
+
     time1 = time.time()
     file_num = 0
     for file_name in lidar_file_list:
-        # 실제 연구에 쓸 데이터만 추출하는 코드.
-        date_time = '_'.join(file_name.split('\\')[-1].split('_')[2:4]).split('.')[0][2:]
-        if date_time not in essential_list:
-            print(date_time, "not in essential_list")
-            continue
-        else:
-            print(date_time, "in essential_list")
+
         packets = []
         file_name = file_name.replace("\n", "")
         print("now converting : ", file_name)
@@ -126,6 +117,7 @@ def main():
         hms = file_name.replace(".", "_").split("_")[-2]
         with open(file_name, 'rb') as f:  # 취득데이터 이름
             crop_start_trash(f)
+            error = 0
             while 1:
                 encoder_dummy = -1
                 try:
@@ -136,6 +128,7 @@ def main():
                     for i in range(64):
                         f.read(2) # 처음에 붙은 0x00 0x00은 없애는 작업
                         header = f.read(50)  # katech header
+                        print(header)
                         header = header.decode().replace(" ", "").split("\t")
                         data = list(f.read(24896))
                         ## encoder check ##
@@ -148,6 +141,9 @@ def main():
                         f.read(2)  # last enter
                         # encoder가 마지막 패킷을 감지하거나 혹은 encoder_dummy가 354.375인데 encoder가 5.625인, 그러니까 건너 뛴 상황에 break하여 모아둔 만큼만 pcd로.
                         if encoder == 354.375 or (encoder < encoder_dummy):
+                            if i < 63:
+                                print(error, '/', pcd_num)
+                                error +=1
                             break
                         encoder_dummy = encoder
                     if (frame_i % 10 ==0 or 1):

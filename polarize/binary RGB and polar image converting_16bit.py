@@ -36,7 +36,7 @@ def createRGBColorImage(dataSet,outputfilename,width=0):
     image = image.rotate(180)
     gray_image = np.array(image)
 
-    RGB_image = np.zeros((int(height / 2), int(width / 2), 3), dtype=np.uint8)
+    RGB_image = np.zeros((int(height / 2), int(width / 2), 3), dtype=np.uint16)
     for i in range(int(height/2)):
         for j in range(int(width/2)):
             # print(gray_image[i*2][j*2])
@@ -52,22 +52,25 @@ def createRGBColorImage(dataSet,outputfilename,width=0):
 def createPolarSplitedColorImage(dataSet,path, basename, index,width=0):
     width = 2448
     height = 2048
-    image = Image.new('L', (width,height))
-    image.putdata(dataSet)
+    data = np.frombuffer(dataSet, dtype=np.uint16)
+    image = data.reshape(height, width)
+    # image = Image.new('I;16L', (width,height))
+    # image.putdata(dataSet)
 
 
-    imagename0 = path + '\\' + '0' '\\' + basename +'_' + index + "_0.bmp"
-    imagename45 = path + '\\' + '45' '\\' + basename +'_' + index + "_45.bmp"
-    imagename90 = path + '\\' + '90' '\\' + basename +'_' + index + "_90.bmp"
-    imagename135 = path + '\\' + '135' '\\' + basename +'_' + index + "_135.bmp"
-    imagenameAll = path + '\\' + 'All_angle' '\\' + basename +'_' + index + "_all.bmp"
-    image = image.rotate(180)
+    imagename0 = path + '\\' + '0' '\\' + basename +'_' + index + "_0.png"
+    imagename45 = path + '\\' + '45' '\\' + basename +'_' + index + "_45.png"
+    imagename90 = path + '\\' + '90' '\\' + basename +'_' + index + "_90.png"
+    imagename135 = path + '\\' + '135' '\\' + basename +'_' + index + "_135.png"
+    imagenameAll = path + '\\' + 'All_angle' '\\' + basename +'_' + index + "_all.png"
+    image = np.rot90(image, 2)
+    # image = image.rotate(180)
     gray_image = np.array(image)
 
-    image_0 = np.zeros((int(height / 4), int(width / 4), 3), dtype=np.uint8)
-    image_45 = np.zeros((int(height / 4), int(width / 4), 3), dtype=np.uint8)
-    image_135 = np.zeros((int(height / 4), int(width / 4), 3), dtype=np.uint8)
-    image_90 = np.zeros((int(height / 4), int(width / 4), 3), dtype=np.uint8)
+    image_0 = np.zeros((int(height / 4), int(width / 4), 3), dtype=np.uint16)
+    image_45 = np.zeros((int(height / 4), int(width / 4), 3), dtype=np.uint16)
+    image_135 = np.zeros((int(height / 4), int(width / 4), 3), dtype=np.uint16)
+    image_90 = np.zeros((int(height / 4), int(width / 4), 3), dtype=np.uint16)
 
     for i in range(int(height / 4)):
         for j in range(int(width / 4)):
@@ -98,12 +101,15 @@ def createPolarSplitedColorImage(dataSet,path, basename, index,width=0):
 
     image_all = cv2.resize(image_all, (int(2448 / 4), int(2048 / 4)))
     cv2.imshow("image_all", image_all)
-    cv2.waitKey(1)
+    print(image_all)
+    cv2.waitKey()
+    exit(10)
+
 
     print (path + '\\' + '0' '\\' + base_name +'_' + index + "_0.bmp" +" polar splited image created")
 
 if __name__=="__main__":
-    root_path = 'E:\\'
+    root_path = 'C:\\Users\\jcy37\\source\\repos\\Project2\\data'
     list1 = os.listdir(root_path)
     list_polar = [i for i in list1 if i.endswith('232000061.bin')]
     list_RGB   = [j for j in list1 if j.endswith('22623682.bin') ]
@@ -127,10 +133,10 @@ if __name__=="__main__":
 
         file = open(file_full_path, "rb")
         size = os.path.getsize(file_full_path)
-        image_number = int(size / 2448/ 2048)
-
-        for i in range(int(size / 2448/ 2048)):
-            data = file.read(2448*2048)  # read byte by byte
+        # 16bit 니까 2448*2048*2
+        image_number = int(size / 2448/ 2048/2)
+        for i in range(int(size / 2448/ 2048/2)):
+            data = file.read(2448*2048*2)  # read byte by byte
             if i % 2 == 0:
                 print(i, "/", image_number, 'images')
                 createPolarSplitedColorImage(data, root_path + "\\polar", base_name, str(i))
@@ -150,9 +156,9 @@ if __name__=="__main__":
 
         file = open(file_full_path, "rb")
         size = os.path.getsize(file_full_path)
-        image_number = int(size / 2448/ 2048)
-        for i in range(int(size / 2448/ 2048)):
-            data = file.read(2448*2048)  # read byte by byte
+        image_number = int(size / 2448/ 2048/2)
+        for i in range(int(size / 2448/ 2048/2)):
+            data = file.read(2448*2048*2)  # read byte by byte
             if i % 2 == 0:
                 print(i, "/", image_number, 'images')
                 createRGBColorImage(data, outputFilename+'_' + str(i))

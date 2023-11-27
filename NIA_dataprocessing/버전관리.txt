@@ -12,10 +12,21 @@ Frame_TimeStamp를 서로 한 폴더에 있는걸 가정하고 코딩
 legacy 코드정리 1차 완료
 matcing된 데이터 정리한 폴더 선택 시점을 빨리 하여, 보다 효율적인 실행프로세스 가능.
 
+ver2.1
+20230824
+finenearnum()추가. lidar -camera 매칭용
+
 ver3
 
 high res, low res maching 과정 추가
 4ch 이미지를 다 같이 끌어오는 과정 추가
+
+ver3.1
+열영상 카메라 동기화 취득 코드
+ver3에서 matching_high_low(삭제, 2023NIA용)
+
+ver3.2
+열영상 카메라용 330ms 딜레이 고려 코드 작성
 
 ver4
 
@@ -34,3 +45,4 @@ matching_high_low()
 research version
 ver2에서 파생
 연구용으로 작성. PCD가 제대로 추출 안되었기 때문에, 따로 다시 추출된 pcd를 matching된 png에 맞게 matched pcd를 뽑아주는 코드.
+

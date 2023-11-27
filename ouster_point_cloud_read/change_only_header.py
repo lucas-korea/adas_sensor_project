@@ -2,7 +2,7 @@ import os
 
 def main():
     file_list = []
-    for root, dirs, files in os.walk('I:\\20220824_calib\\calibration 쌍\\추가 데이터 3'):
+    for root, dirs, files in os.walk('C:\\Users\\jcy37\\Documents\\카카오톡 받은 파일\\230905_front_lidar\\lidar'):
         for fname in files:
             full_fname = os.path.join(root, fname)
             file_list.append(full_fname)
@@ -10,7 +10,7 @@ def main():
     # file_list = os.listdir(os.getcwd())
     file_list = [file for file in file_list if file.endswith(".pcd")]
     file_list.sort()
-    cnt = 0
+    cnt = 1
     print(file_list)
     for file in file_list:
         print(cnt, '/', len(file_list))

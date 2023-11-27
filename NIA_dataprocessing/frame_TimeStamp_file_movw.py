@@ -1,19 +1,48 @@
 import os
 import shutil
 
-def search(dirname):
-    file_path_list = []
-    for (path, dir, files) in os.walk(dirname):
-        file_path_list.append([path + '\\' + file for file in files if file.startswith("Frame_TimeStamp_")])
-    return [v for v in file_path_list if v]
+PCD_matched_path = 'E:\\20230825_cam_lidar_calibration\\PCD_matched'
+PCD_matched_list = os.listdir(PCD_matched_path)
 
-search_result = search("D:\\210828_testdata_sw5\\short")
-print(search_result)
-print(len(search_result))
-# search_result = []
-for i in range(len(search_result)):
-    print(search_result[i][0])
-    shutil.copy2(search_result[i][0], "D:\\210828_testdata_sw5")
-# sample_list = [v for v in search("D:\\210828_testdata_sw5\\short") if v]
-# print(sample_list)
-# print(len(sample_list))
+camera_path ='E:\\20230825_cam_lidar_calibration\\calibration_pair\\right_추가\\cam'
+camera_list = os.listdir(camera_path)
+for i in range(len(camera_list)):
+    os.rename(camera_path + '\\' + camera_list[i], camera_path + '\\' + '_'.join(camera_list[i].split('.')[0].split('_')[0:3]) + '.png')
+    file_name_frame = '_'.join(camera_list[i].split('.')[0].split('_')[0:3])
+    pcd_matched_file_name = [file for file in PCD_matched_list if '_'.join(file.split('.')[0].split('_')[0:3]) == file_name_frame][-1]
+    shutil.copy2(PCD_matched_path + '\\' + pcd_matched_file_name,'E:\\20230825_cam_lidar_calibration\\calibration_pair\\right_추가\\lidar')
+
+
+
+# camera_path = 'E:\\20230825_cam_lidar_calibration\\calibration_pair\\rear\\camera'e
+# camera_list = os.listdir(camera_path)
+# print(camera_list)
+# for i in range(len(camera_list)):
+#     os.rename(camera_path + '\\' + camera_list[i], camera_path + '\\' + '_'.join(camera_list[i].split('.')[0].split('_')[0:3]) + '.png')
+#     file_name_frame = '_'.join(camera_list[i].split('.')[0].split('_')[0:3])
+#     pcd_matched_file_name = [file for file in PCD_matched_list if '_'.join(file.split('.')[0].split('_')[0:3]) == file_name_frame][-1]
+#     shutil.copy2(PCD_matched_path + '\\' + pcd_matched_file_name, 'E:\\20230825_cam_lidar_calibration\\calibration_pair\\rear\\lidar')
+#
+# camera_path = 'E:\\20230825_cam_lidar_calibration\\calibration_pair\\front\\camera'
+# camera_list = os.listdir(camera_path)
+# for i in range(len(camera_list)):
+#     os.rename(camera_path + '\\' + camera_list[i], camera_path + '\\' + '_'.join(camera_list[i].split('.')[0].split('_')[0:3]) + '.png')
+#     file_name_frame = '_'.join(camera_list[i].split('.')[0].split('_')[0:3])
+#     pcd_matched_file_name = [file for file in PCD_matched_list if '_'.join(file.split('.')[0].split('_')[0:3]) == file_name_frame][-1]
+#     shutil.copy2(PCD_matched_path + '\\' + pcd_matched_file_name,'E:\\20230825_cam_lidar_calibration\\calibration_pair\\front\\lidar')
+#
+# camera_path = 'E:\\20230825_cam_lidar_calibration\\calibration_pair\\right\\camera'
+# camera_list = os.listdir(camera_path)
+# for i in range(len(camera_list)):
+#     os.rename(camera_path + '\\' + camera_list[i], camera_path + '\\' + '_'.join(camera_list[i].split('.')[0].split('_')[0:3]) + '.png')
+#     file_name_frame = '_'.join(camera_list[i].split('.')[0].split('_')[0:3])
+#     pcd_matched_file_name = [file for file in PCD_matched_list if '_'.join(file.split('.')[0].split('_')[0:3]) == file_name_frame][-1]
+#     shutil.copy2(PCD_matched_path + '\\' + pcd_matched_file_name, 'E:\\20230825_cam_lidar_calibration\\calibration_pair\\right\\lidar')
+#
+# camera_path ='E:\\20230825_cam_lidar_calibration\\calibration_pair\\left\\camera'
+# camera_list = os.listdir(camera_path)
+# for i in range(len(camera_list)):
+#     os.rename(camera_path + '\\' + camera_list[i], camera_path + '\\' + '_'.join(camera_list[i].split('.')[0].split('_')[0:3]) + '.png')
+#     file_name_frame = '_'.join(camera_list[i].split('.')[0].split('_')[0:3])
+#     pcd_matched_file_name = [file for file in PCD_matched_list if '_'.join(file.split('.')[0].split('_')[0:3]) == file_name_frame][-1]
+#     shutil.copy2(PCD_matched_path + '\\' + pcd_matched_file_name,'E:\\20230825_cam_lidar_calibration\\calibration_pair\\left\\lidar')

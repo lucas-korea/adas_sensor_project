@@ -107,7 +107,7 @@ def crop_start_trash(f):
     while 1:
         try:
             f.read(2)  # 처음에 붙은 0x00 0x00은 없애는 작업
-            f.read(48)  # katech header
+            f.read(50)  # katech header
             if find_start(list(f.read(24896))):
                 f.read(2)  # last enter
                 break
@@ -147,7 +147,7 @@ def main():
                     pcd_num = pcd_num + 1
                     for i in range(64):
                         f.read(2) # 처음에 붙은 0x00 0x00은 없애는 작업
-                        header = f.read(48)  # katech header
+                        header = f.read(50)  # katech header
                         data = list(f.read(24896))
                         if find_180deg(data):
                             header = header.decode().replace(" ", "").split("\t")
@@ -155,7 +155,7 @@ def main():
                             tick_ct = header[2]
                         packets = packets + data
                         f.read(2)  # last enter
-                    if (frame_i % 10 == 0):
+                    if (frame_i % 10 == 0 or 1):
                         parsing_packet(packets)
                         point_cloud = cal_lidar_pos()  # global로 선언된 distance, reflectivity, signal_photon, Azimuth를 조합하여 point cloud data 생성
                         make_bin_PCDfile(point_cloud, lidar_list_dir_path, ymd, hms, frame_i,

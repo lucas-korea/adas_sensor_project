@@ -49,6 +49,8 @@ zig_shade() 삭제
 f.read(50) -> f.read(48)
 low resolution lidar 고려한 코드 삭제
 2도 조정한거 삭제(super resolution이랑 관계 없음)
+20230818 작성 : 2023 NIA 생활도로에 사용할 예정
+main 함수의 header = f.read(50)  도 48에서 50으로 바꿈
 
 ver6c
 NIA4차 데이터 연구용 추출을 위해 생성
@@ -58,3 +60,24 @@ cal_lidar_pos_32ch(), make_ascii_PCDfile(), re_zero() 삭제
 parsing_packet()에서 채널 변형, 연구 ppt 참조
 연구를 위해 npy 데이터로 만들자. 다만 확장자는 pcd로
 make_bin_PCDfile(), cal_lidar_pos() 삭제, make_npyfile() 생성, zig 음영부분 제거하는 코드 삽입, 총 100개 columns 삭제
+
+ver7.0
+ver6.0에서 파생
+20230819 작성 : NIA 생활도로에 사용할 예정
+
+rm_zero_point() 불용
+zig_shade() , make_ascii_PCDfile(), cal_lidar_pos_32ch() 삭제
+low resolution lidar 고려한 코드 삭제
+2도 조정한거 삭제(super resolution이랑 관계 없음)
+- 지금 라이다 패킷이 다 안들어 온다.  모든 라이다 패킷 interval이 2ms로 되어 있다. 원래라면 1.5625ms 이기 때문에 1~2 를 왔다갔다 해야만 한다.
+버퍼 문제일수도 있고, for문 돌아가는 속도 문제일수도 있고, 패킷이 너무 커서 문제일수도 있다. 지금 아마 가로해상도가 1024일텐데 반으로 줄여볼까.
+우선 180도 지점 tick을 못찾으면 파일명이 이상해지니까 이전 tick이랑 현재 tick이랑 같으면 100을 더해서 하는걸로 임시방편을 하자
+-아래 코드 추가
+                    if old_tick_ct == tick_ct: # 이전 tick이랑 현재 tick이랑 같으면 100을 더해서 하는걸로 임시방편
+                        tick_ct = str(int(tick_ct) + 100)
+ver7.1
+맨윗 채널 삭제 코드 제외(ver5.2 내용)
+find_start() 함수에서, 0도를 찾는게 아닌, 354.375도를 찾는다. 그러면 다음 read에서 0도 부터 읽게 되는것.
+                    if old_tick_ct == tick_ct: # 이전 tick이랑 현재 tick이랑 같으면 100을 더해서 하는걸로 임시방편
+                        tick_ct = str(int(tick_ct) + 100)
+ver7.1.1
