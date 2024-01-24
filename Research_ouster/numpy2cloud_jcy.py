@@ -34,7 +34,7 @@ intensity = rowList + colList / image_cols
 
 if __name__ == "__main__":
     print("katech")
-    PointClouds = np.load("result.npy")
+    PointClouds = np.load("result2.npy")
     fig = plt.figure()
     plt.style.use(['dark_background'])
     ax = fig.add_subplot(111, projection='3d')

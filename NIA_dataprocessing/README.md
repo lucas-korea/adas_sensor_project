@@ -22,16 +22,23 @@
  - NMEA 형식을 이용하여 위경도, 고도, 각도 등의 데이터를 추출
  - 연속 GPS 데이터에 대하여 google map API를 이용해 주행경로를 지도에 ploting 기능
    
-   <center><img src="https://github.com/lucas-korea/adas_sensor_project/assets/57425658/11499015-e5d8-4a53-819b-78a72bc66177" width="320" height="240"></center>  
-   gps 데이터와 google API를 이용한 주행경로 확인 및 정밀성 평가
+<center><img src="https://github.com/lucas-korea/adas_sensor_project/assets/57425658/11499015-e5d8-4a53-819b-78a72bc66177" width="320" height="240"></center>  
+<p align="center" style="color:gray">
+  gps 데이터와 google API를 이용한 주행경로 확인 및 정밀성 평가
+</p>
+ 
 
-   <center><img src="https://github.com/lucas-korea/adas_sensor_project/assets/57425658/fa499ca4-7b0b-491e-989f-b48df6429c34" width="420" height="80"></center>  
-   Oxts GPS에서 추출한 프레임별 데이터 예시. 시간, 위/경도, 롤피치요 각도, 속도 등
+<center><img src="https://github.com/lucas-korea/adas_sensor_project/assets/57425658/fa499ca4-7b0b-491e-989f-b48df6429c34" width="420" height="80"></center>
+<p align="center" style="color:gray">
+  Oxts GPS에서 추출한 프레임별 데이터 예시. 시간, 위/경도, 롤피치요 각도, 속도 등
+</p>
+ 
+
 
 ## data matching(중요)
  - 라이다s, 카메라s, GPS 데이터를 취득시 저장된 timestamp 기반하여 센서 데이터 매칭 자동화 프로그램  
 
-   <center><img src="https://github.com/lucas-korea/adas_sensor_project/assets/57425658/45479d2e-b01a-439d-b2c2-8d6f1562bb3f" width="420" height="480"></center>  
+<center><img src="https://github.com/lucas-korea/adas_sensor_project/assets/57425658/45479d2e-b01a-439d-b2c2-8d6f1562bb3f" width="420" height="480"></center>  
 
 ### utils
  - 라이다 데이터 축 변환

@@ -22,8 +22,9 @@
 
 
 
+### 소니 편광카메라 픽셀 구조
+---
 <center><img src="https://github.com/lucas-korea/adas_sensor_project/assets/57425658/f99b12be-6bd2-4977-a78b-a8f6bc52d3c0" width="500" height="170"></center>  
-<center>소니 편광카메라 픽셀 구조</center>
 
 
 
@@ -35,5 +36,5 @@ DOLP이미지는 편광의 정도, AOLP는 편광의 각도를 의미한다. 따
 이 두가지 이미지를 합쳐서, hue는 AOLP의 값으로,  saturation은 DOLP의 값으로, brightness는 255로 고정하여 HSV 형태로 이미지를 표현할 수 있게 만들어 보았다
 
 <center><img src="https://github.com/lucas-korea/adas_sensor_project/assets/57425658/93d2f474-dd00-4f7a-ab3b-eb9750c9dc8a" width="430" height="270"></center>  
-<center>편광 카메라 이미지 분석</center>
+
 
