@@ -88,16 +88,16 @@ def binPCD2asciiPCD(file_name): # args가 없으면 코드가 위치한 디렉�
     Origin_pcd_f.close()
     return lines
 
-xyz_lim = 10
+# xyz_lim = 20
 fig = plt.figure()
 plt.style.use(['dark_background'])
 ax = fig.add_subplot(111, projection='3d')
 plt.cla()
 
 ax.plot([0],[0],[0], 'b.', alpha = 0.2)
-ax.set_xlim(-xyz_lim, xyz_lim)
-ax.set_ylim(-xyz_lim, xyz_lim)
-ax.set_zlim(-xyz_lim, xyz_lim)
+# ax.set_xlim(-xyz_lim, xyz_lim)
+# ax.set_ylim(-xyz_lim, xyz_lim)
+# ax.set_zlim(-xyz_lim, xyz_lim)
 
 plt.axis('off')
 plt.pause(0.001)
@@ -216,10 +216,10 @@ global PointCloudOrigin
 global RefPointcloud
 
 if __name__ == "__main__":
-    RefPointCloud = binPCD2asciiPCD("C:\\Users\\jcy37\\PycharmProjects\\Radar_Lidar_calibration\\0_20220215_155702_000042.pcd")
+    RefPointCloud = binPCD2asciiPCD("C:\\Users\\jcy37\\PycharmProjects\\Radar_Lidar_calibration\\202254102723_bin.pcd")
     RefPointCloud.pop(-1)
     RefPointCloudNew = []
-    PointCloud = binPCD2asciiPCD("C:\\Users\\jcy37\\PycharmProjects\\Radar_Lidar_calibration\\1_20220215_155702_000173.pcd")
+    PointCloud = binPCD2asciiPCD("C:\\Users\\jcy37\\PycharmProjects\\Radar_Lidar_calibration\\202254103025_bin.pcd")
     PointCloud.pop(-1)
     PointCloudNew = []
     for i in range(len(PointCloud)):
