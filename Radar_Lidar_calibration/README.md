@@ -13,20 +13,20 @@
 ### 기능 설명 
 ---
 <p align="center">
-	<img src="https://github.com/lucas-korea/adas_sensor_project/assets/57425658/5279b5b2-5eb7-4596-9d71-d2634a77af4a" width="400" height="150">
+	<img src="https://github.com/lucas-korea/adas_sensor_project/assets/57425658/5279b5b2-5eb7-4596-9d71-d2634a77af4a" width="400" height="180">
 	
 <p>
 
 ### 단축키 설명
 ---
 <p align="center">
-	<img src="https://github.com/lucas-korea/adas_sensor_project/assets/57425658/0d2b83c9-de5d-4771-b0fd-da7ce3141b6c" width="400" height="270">
+	<img src="https://github.com/lucas-korea/adas_sensor_project/assets/57425658/0d2b83c9-de5d-4771-b0fd-da7ce3141b6c" width="400" height="300">
 <p>
 
 ### 정합 전후
 ---
 <p align="center">
-	<img src="https://github.com/lucas-korea/adas_sensor_project/assets/57425658/9c730476-b0fe-479e-bc6b-071f79dcd427" width="400" height="270">
+	<img src="https://github.com/lucas-korea/adas_sensor_project/assets/57425658/9c730476-b0fe-479e-bc6b-071f79dcd427" width="400" height="300">
 <p>
 
 ### 정합 과정
