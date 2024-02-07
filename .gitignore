@@ -20,3 +20,4 @@ super_resolution\
 *.pickle
 *.csv
 *.bmp
+stereo_calibration
